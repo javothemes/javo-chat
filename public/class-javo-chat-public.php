@@ -802,8 +802,11 @@ class Javo_Chat_Public {
         wp_send_json_success($response_data);
     }
 
-    // Method to handle AJAX request for chat partners
-    // updateParticipantPanelWithAjax callback
+    /**
+     * AJAX function to get chat partner data for single chat mode.
+     *
+     * @since    1.0.0
+     */
     public function get_chatPartnerSingle() {
         // Check nonce using the nonce sent from client
         check_ajax_referer('chatSecurityNonce', 'nonce');
@@ -812,15 +815,27 @@ class Javo_Chat_Public {
         $receiverId = isset($_POST['receiverId']) ? $_POST['receiverId'] : '';
         $currentUserId = get_current_user_id(); // Get the current user's ID
 
-        // Default response
+        error_log('get_chatPartnerSingle id: '. $receiverId);
+        error_log('get_chatPartnerSingle uid: '. $currentUserId);
+
+       // Default response
         $userData = array(
             'isBlocked' => false,
-            'isSameUser' => false,
+            'isMyself' => false,
+            'displayName' => 'Visitor ('. $receiverId .')',
+            'avatarUrl' => $this->get_user_avatar_url($receiverId),
+            'unreadMessagesCount' => 0,
+            'userStatus' => 'offline',
+            'userLastActive' => '',
+            'favoriteUser' => false,
+            'blockedUser' => false
         );
 
-        // Check if current user is trying to chat with themselves
+       // Check if current user is trying to chat with themselves
         if ($currentUserId == $receiverId) {
-            $userData['isSameUser'] = true;
+            $userData['isMyself'] = true;
+            // Set isBlocked to true to disable message input for oneself
+            $userData['isBlocked'] = true;
         } else {
             // Check if the current user has been blocked by the receiver
             $blockedUsers = get_user_meta($receiverId, 'chat-block-users', true);
@@ -829,15 +844,6 @@ class Javo_Chat_Public {
                 $userData['isBlocked'] = true;
             }
         }
-
-        // Initialize default user data
-        $userData = array(
-            'displayName' => 'Visitor ('. $receiverId .')',
-            'avatarUrl' => $this->get_user_avatar_url($receiverId),
-            'unreadMessagesCount' => 0,
-            'userStatus' => 'offline',
-            'userLastActive' => ''
-        );
 
         // Check if receiverId is not empty and is a numeric value
         if (!empty($receiverId) && is_numeric($receiverId)) {
@@ -868,6 +874,7 @@ class Javo_Chat_Public {
         // Return user data as JSON
         wp_send_json_success(array('userData' => $userData));
     }
+
 
 
     /**
