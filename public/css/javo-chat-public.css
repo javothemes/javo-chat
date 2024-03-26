@@ -10,13 +10,13 @@ Chat Messages Styles:
 :root {
     --chat-height: 800px;
     --last-message-width: 185px;
-    /* text-runcate */
+    /* text-truncate */
     --chat-user-list-height: 535px;
     /* Overflow, scroll */
     --chat-list-avatar-size: 35px;
     /* Wrap size */
     --chat-side-bar-width: 68px;
-    --chat-message-height: 550px;
+    --chat-message-height: 593px;
 }
 
 /* Dark theme overrides */
@@ -229,6 +229,11 @@ Chat Messages Styles:
     min-height: 59px !important;
 }
 
+#scrollToBottomButton {
+    display: none;
+    cursor: pointer;
+}
+
 /* Floating Chat Button Style */
 #jv-floating-chat-button {
     position: fixed;
@@ -255,7 +260,6 @@ Chat Messages Styles:
     position: fixed;
     bottom: 90px;
     right: 20px;
-    width: 400px;
     display: none;
     z-index: 1000;
 }
@@ -265,13 +269,17 @@ Chat Messages Styles:
 }
 
 .chat_single_mode .end-chat-button {
-    top: -20px;
+    top: 0px;
     right: 0px;
     padding: 5px 10px;
     background-color: #dc3545;
     color: white;
     border: none;
     cursor: pointer;
+}
+
+.chat_single_mode .profile-opener {
+    display: none;
 }
 
 /* Layout */

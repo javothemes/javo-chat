@@ -448,13 +448,10 @@ Move to the message ( when you click the message : search or saved )
 
 			// Function to load previous messages
 			function loadPreviousMessages() {
-				console.log("------ Load More!!!! ------");
 
 				if (allMessagesLoaded) {
 					return; // If all messages are loaded, do nothing
 				}
-
-				console.log('load more worked!!!');
 				hasUserAttemptedToLoadMore = true;
 
 				// Show loading message
@@ -513,11 +510,15 @@ Move to the message ( when you click the message : search or saved )
 
 				// Check if the scroll position is at the top or near the top
 				if (scrollTop <= scrollThreshold && !allMessagesLoaded) {
-					console.log("------ SCROOOOLLLLLL Load More!!!! ------");
-					// Execute the loading function
-					loadPreviousMessages();
+					console.log("------ 2 SCROOOOLLLLLL Load More!!!! ------");
+					// Delay the execution of loading function by 0.5 seconds
+					setTimeout(function () {
+						loadPreviousMessages();
+					}, 1000);
 				}
 			});
+
+
 
 			// Function to show loading message (Implement as needed)
 			function showLoadingMessage() {
@@ -550,11 +551,30 @@ Move to the message ( when you click the message : search or saved )
 				}
 			});
 
-			// Scroll to bottom function
+			// Scroll to bottom function with animation
 			function scrollToBottom() {
 				var chatMessagesContainer = $('#chat-messages');
-				chatMessagesContainer.scrollTop(chatMessagesContainer.prop("scrollHeight"));
+				var scrollHeight = chatMessagesContainer.prop("scrollHeight");
+				chatMessagesContainer.animate({ scrollTop: scrollHeight }, 0); // Adjust animation duration as needed
 			}
+
+			// Go to Bottom Button
+			var chatMessagesContainer = $('#chat-messages');
+			var scrollToBottomButton = $('#scrollToBottomButton');
+
+			chatMessagesContainer.on('scroll', function () {
+				var isCloseToBottom = (this.scrollHeight - this.scrollTop - this.clientHeight) < 140;
+				if (!isCloseToBottom) {
+					scrollToBottomButton.fadeIn();
+				} else {
+					scrollToBottomButton.fadeOut();
+				}
+			});
+
+			scrollToBottomButton.on('click', function () {
+				chatMessagesContainer.animate({ scrollTop: chatMessagesContainer.prop("scrollHeight") }, 'slow');
+			});
+
 
 			function sendMessage(mediaId = null) {
 				var message = $('#message-input').val(); // Get message from input field
@@ -634,8 +654,9 @@ Move to the message ( when you click the message : search or saved )
 				console.log('isFirstPageLoad:' + isFirstPageLoad);
 				console.log('hasUserAttemptedToLoadMore:' + hasUserAttemptedToLoadMore);
 
-				initializeChatInterface(receiverId); // 선택된 receiver ID로 채팅 인터페이스를 초기화합니다.
-				//getChatMessages(loadMsgAmount); // 초기화가 성공하면 getChatMessages 함수를 호출합니다.
+				initializeChatInterface(receiverId, function () {
+					scrollToBottom();
+				});
 
 				var messageId = $(this).data('message-id'); // Extract message ID
 				if (messageId) {
@@ -648,10 +669,11 @@ Move to the message ( when you click the message : search or saved )
 					loadMsgAmount = initMsgAmount; // Reset the load msg amount if it's not the 1st click
 					getChatMessages(loadMsgAmount, function () {
 						scrollToBottom(function () {
-							isStartingChat = false;
+							//isStartingChat = false;
 						});
 						isStartingChat = false;
 					});
+					scrollToBottom();
 					intervalId = setInterval(checkForNewMessages, 5000);
 				}
 			});
@@ -2274,6 +2296,7 @@ Move to the message ( when you click the message : search or saved )
 					setTimeout(function () {
 						$messageContent.removeClass('highlighted'); // Remove class after delay
 					}, 500); // Adjust delay time as needed (500 milliseconds)
+					isStartingChat = false;
 				} else {
 					console.error('Message with the specified ID not found.');
 				}

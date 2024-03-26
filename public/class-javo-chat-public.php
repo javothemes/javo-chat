@@ -427,6 +427,12 @@ class Javo_Chat_Public {
                     </div>
                     <div id="chat-messages" class="pb-2 mb-2 w-100"></div>
                     <div id="loading-message" class="p-5" style="display:none;"><?php echo __('Loading...', 'your-text-domain'); ?> <div class="spinner-grow spinner-grow-sm" role="status"><span class="visually-hidden"><?php echo __('Loading...', 'your-text-domain'); ?></span></div></div>
+                    <div id="scrollToBottomButton" class="position-absolute bottom-10 end-0 me-4 mb-4 opacity-50">
+                        <span class="p-3 bg-light">
+                            <i class="feather feather-chevron-down"></i>
+                        </span>
+                    </div>
+
 
                     <div id="typing-indicator">
                         <div class="bubble">
