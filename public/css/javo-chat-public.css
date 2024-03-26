@@ -1,4 +1,737 @@
-/**
- * All of the CSS for your public-facing functionality should be
- * included in this file.
- */
+/*
+Chat Messages Styles:
+- Sets the minimum height and height of the chat messages container
+- Defines overflow behavior for vertical scrolling
+- Applies smooth scrolling behavior
+- Sets width and border properties
+*/
+
+/* Layout Size */
+:root {
+    --chat-height: 800px;
+    --last-message-width: 185px;
+    /* text-runcate */
+    --chat-user-list-height: 535px;
+    /* Overflow, scroll */
+    --chat-list-avatar-size: 35px;
+    /* Wrap size */
+    --chat-side-bar-width: 68px;
+    --chat-message-height: 550px;
+}
+
+/* Dark theme overrides */
+[data-chat-theme='light'] {
+    --background-color: #ffffff;
+    --primary-bg-color: #fff;
+    --primary-text-color: #327ee9;
+    --secondary-bg-color: #eef0f6;
+    --secondary-text-color: #8494ab;
+    --text-color: #434343;
+    --sidebar-bg-color: #555;
+    --sidebar-text-color: #ccc;
+    --bs-border-color: var(--secondary-bg-color);
+    --partner-chat-content-bg: #fff;
+    --partner-chat-content-text: #454545;
+    --partner-chat-content-link: var(--primary-text-color);
+    --my-chat-content-bg: #d1d3e3;
+    --my-chat-content-text: #454545;
+    --my-chat-content-link: #0d72ff;
+}
+
+/* Dark theme overrides */
+[data-chat-theme='dark'],
+[data-chat-theme='default'] {
+    --background-color: #1e2230;
+    --primary-bg-color: #1e2230;
+    --primary-text-color: #327ee9;
+    --secondary-bg-color: #181b24;
+    --secondary-text-color: #8c8ca8;
+    --text-color: #dee3ff;
+    --sidebar-bg-color: #555;
+    --sidebar-text-color: #ccc;
+    --bs-border-color: #353b53;
+    --partner-chat-content-bg: #353146;
+    --partner-chat-content-text: #fff;
+    --partner-chat-content-link: #6ca6ff;
+    --my-chat-content-bg: #6179ff;
+    --my-chat-content-text: #fff;
+    --my-chat-content-link: #a5b9ff;
+}
+
+
+.chat-wrap {
+    color: var(--text-color);
+
+    a {
+        color: var(--text-color);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        color: var(--text-color);
+    }
+}
+
+.chat-wrap.chat_single_mode {
+    width: 500px;
+}
+
+#send-button {
+    width: 150px;
+}
+
+.chat_single_mode #send-button {
+    width: 60px;
+}
+
+#message-input:focus {
+    box-shadow: none !important;
+}
+
+/* This css is set on another css : priority */
+.chat-wrap .border-bottom {
+    --bs-border-color: var(--bs-border-color);
+}
+
+/* Applying variables */
+/* body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+} */
+
+/* .chat-side {
+    background-color: var(--sidebar-bg-color);
+    color: var(--sidebar-text-color);
+} */
+.chat-wrap {
+
+    .card,
+    #email-input-container,
+    #javo-interface-inner,
+    #chat-settings-page,
+    .search-form .form-control,
+    .search-form .form-control:focus,
+    .start-chat.active,
+    .saved-msg .rounded-circle {
+        background-color: var(--secondary-bg-color);
+    }
+}
+
+.search-form .form-control,
+.last-message,
+#chat-partners-title,
+.badge.chat-time-line {
+    color: var(--secondary-text-color);
+}
+
+.last-message {
+    width: var(--last-message-width);
+}
+
+.chat-wrap i {
+    color: var(--secondary-text-color);
+}
+
+
+
+
+.chat-wrap {
+    height: var(--chat-height);
+    background-color: var(--background-color);
+}
+
+.chat-wrap .dropdown-menu {
+    --bs-dropdown-bg: var(--primary-bg-color);
+    --bs-dropdown-color: var(var(--bs-border-color));
+}
+
+#chat-user-list {
+    height: var(--chat-user-list-height);
+}
+
+.message .content {
+    background-color: var(--partner-chat-content-bg);
+    color: var(--partner-chat-content-text);
+
+    a,
+    i {
+        color: var(--partner-chat-content-link);
+    }
+}
+
+.message .content img {
+    max-width: 200px;
+}
+
+
+.message.my-message .content {
+    background-color: var(--my-chat-content-bg);
+    color: var(--my-chat-content-text);
+
+    a,
+    i {
+        color: var(--my-chat-content-link);
+    }
+}
+
+#chat-partner-list {
+    overflow: auto;
+    max-height: 100%;
+    height: 93%;
+    ;
+}
+
+#chat-messages {
+    overflow-y: auto;
+    /* flex-grow: 1; */
+    height: var(--chat-message-height);
+
+
+    /* Styles for avatar images within chat messages */
+    img.avatar {
+        width: 30px;
+    }
+}
+
+.flex-grow-1 {
+    flex-grow: 1;
+}
+
+
+/* Search */
+#chatSearchTab {
+    height: 422px;
+    overflow: auto;
+}
+
+#chat-messages .message .chat-content-options,
+#admin-notice {
+    display: none;
+}
+
+#chat-messages .message:hover {
+    .chat-content-options {
+        display: block;
+    }
+
+    .message-time,
+    .read-status {
+        display: none;
+    }
+}
+
+.greeting-message-wrap textarea,
+.chat-owner-notice-wrap textarea {
+    min-height: 59px !important;
+}
+
+/* Floating Chat Button Style */
+#jv-floating-chat-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#email-input-container {
+    display: flex;
+}
+
+#javo-chat-wrap {
+    display: flex;
+}
+
+.chat_single_mode#javo-chat-wrap {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 400px;
+    display: none;
+    z-index: 1000;
+}
+
+.end-chat-button {
+    display: none;
+}
+
+.chat_single_mode .end-chat-button {
+    top: -20px;
+    right: 0px;
+    padding: 5px 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+/* Layout */
+.chat-list {
+    width: 300px;
+}
+
+.profile-opener {
+    width: 25px;
+
+    .feather-chevron-left {
+        display: none;
+    }
+}
+
+.collapsed {
+    .feather-chevron-right {
+        display: none;
+    }
+
+    .feather-chevron-left {
+        display: block;
+    }
+}
+
+#profile-sidebar .profile-inner {
+    width: 180px;
+}
+
+/****/
+#javo-interface-inner {
+    display: flex;
+    /* Display none */
+}
+
+.chat-list,
+.chat-side {
+    /* background-color: var(--jv-bg-secondary); */
+}
+
+.input-group-append {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translate(-50%, -50%);
+    z-index: 200;
+}
+
+.chat-side {
+    width: var(--chat-side-bar-width);
+}
+
+
+
+.chat-input {
+    display: none;
+}
+
+#chat-settings-page {
+    display: none;
+}
+
+
+/*
+Chat Messages Positioning:
+- Sets the parent element to relative position
+*/
+#chat-messages {
+    position: relative;
+}
+
+/*
+Loading Message Positioning:
+- Sets the loading message element to absolute position
+- Centers it vertically and horizontally within its parent container
+*/
+#loading-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* background-color: #e625258f; */
+}
+
+/*
+Typing Indicator Styles and Animation:
+- Sets the typing indicator to absolute position
+- Initially hides it
+- Applies slide-up animation for showing
+- Applies slide-down animation for hiding
+*/
+#typing-indicator {
+    position: absolute;
+    bottom: 50px;
+    left: 20px;
+    display: none;
+    z-index: 9999;
+    animation: slide-up 0.3s forwards;
+}
+
+.hide-typing-indicator {
+    animation: slide-down 0.3s forwards;
+}
+
+/*
+Slide-up Animation:
+- Moves the element from bottom to the desired position
+*/
+@keyframes slide-up {
+    from {
+        bottom: -50px;
+    }
+
+    to {
+        bottom: 20px;
+    }
+}
+
+/*
+Slide-down Animation:
+- Moves the element from the desired position to bottom
+*/
+@keyframes slide-down {
+    from {
+        bottom: 20px;
+    }
+
+    to {
+        bottom: -50px;
+    }
+}
+
+/*
+Typing Bubble Styles:
+- Defines styles for the typing bubble
+*/
+.bubble {
+    width: 80px;
+    height: 40px;
+    background-color: #f2f2f2;
+    border-radius: 20px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/*
+Typing Bubble Dots Styles and Animation:
+- Defines styles for the dots within the typing bubble
+- Applies alternate animation for dots movement
+*/
+.dots-container {
+    display: flex;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    background-color: rgba(204, 204, 204, 1);
+    border-radius: 50%;
+    margin: 0 5px;
+    position: relative;
+    animation: dot-animation 1s infinite alternate;
+}
+
+/* Delays animation for each dot */
+.dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.dot:nth-child(2) {
+    animation-delay: 0.4s;
+}
+
+.dot:nth-child(3) {
+    animation-delay: 0.8s;
+}
+
+/*
+Dot Animation:
+- Defines the movement and opacity changes for dots
+*/
+@keyframes dot-animation {
+    0% {
+        top: 2.5px;
+        opacity: 1;
+    }
+
+    50% {
+        top: -2.5px;
+        opacity: 0.7;
+    }
+
+    100% {
+        top: 2.5px;
+        opacity: 0.5;
+    }
+}
+
+
+.user-avatar {
+    display: inline-block;
+    width: var(--chat-list-avatar-size);
+    height: var(--chat-list-avatar-size);
+}
+
+
+.status-dot {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #28a745;
+    /* Green for online */
+    border: 2px solid #ffffff;
+    /* Adjust border color as needed */
+    transform: translate(50%, 50%);
+}
+
+.shake {
+    animation: shake 0.5s ease;
+    font-size: 30px !important;
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px) rotate(3deg);
+    }
+
+    50% {
+        transform: translateX(5px) rotate(-3deg);
+    }
+
+    75% {
+        transform: translateX(-5px) rotate(3deg);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-5px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80%,
+    100% {
+        transform: translateX(5px);
+    }
+}
+
+.badge.unread-count {
+    width: 1.5em;
+    height: 1.5em;
+}
+
+
+#chatToastContainer .toast {
+    top: 80px;
+}
+
+/* wp-admin bar */
+body.wp-admin #chatToastContainer .toast {
+    top: 120px;
+}
+
+
+/* Skeleton Loading Styles */
+.skeleton-avatar {
+    width: 58px;
+    height: 45px;
+    background-color: #f0f0f0;
+    border-radius: 50%;
+}
+
+.skeleton-text {
+    width: 60%;
+    height: 20px;
+    background-color: #f0f0f0;
+}
+
+.unread-count {
+    width: 20px;
+    /* Adjust width as needed */
+    height: 20px;
+    /* Adjust height as needed */
+    background-color: #f0f0f0;
+    /* Adjust background color as needed */
+    border-radius: 50%;
+    /* Ensure it's a circle */
+    font-size: 12px;
+    /* Adjust font size as needed */
+    color: #fff;
+    /* Adjust text color as needed */
+}
+
+/* User Status */
+.btn-status {
+    color: #fff !important;
+}
+
+.chat-user-status-online {
+    background: green !important;
+}
+
+.chat-user-status-busy {
+    background: red !important;
+}
+
+.chat-user-status-away {
+    background: #ffc107 !important;
+}
+
+
+.chat-history-skeleton {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.skeleton-avatar {
+    width: 50px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    margin-right: 10px;
+}
+
+.skeleton-content {
+    flex-grow: 1;
+}
+
+.skeleton-line {
+    height: 10px;
+    background-color: #e0e0e0;
+    margin-bottom: 5px;
+}
+
+.skeleton-line.short {
+    width: 60%;
+}
+
+/* Keyframe for skeleton animation */
+@keyframes skeleton-loading {
+    0% {
+        background-color: #e0e0e0;
+    }
+
+    50% {
+        background-color: #c0c0c0;
+    }
+
+    100% {
+        background-color: #e0e0e0;
+    }
+}
+
+.skeleton-avatar,
+.skeleton-line {
+    animation: skeleton-loading 1.5s infinite ease-in-out;
+}
+
+.highlighted {
+    /* /background-color: red !important; */
+    animation: highlightAnimation 0.5s ease-in-out forwards !important;
+}
+
+@keyframes highlightAnimation {
+
+    0%,
+    100% {
+        background-color: transparent;
+    }
+
+    50% {
+        background-color: rgb(255, 0, 85);
+    }
+
+    /* Use your preferred highlight color */
+}
+
+
+/* Hover effect */
+#jv-floating-chat-button:hover {
+    transform: scale(1.1);
+}
+
+/* Click effect */
+#jv-floating-chat-button:active {
+    transform: scale(0.9);
+}
+
+#jv-floating-chat-button {
+    transition: transform 0.3s ease;
+}
+
+/* Hide both icons by default */
+.chat-icon-x,
+.chat-icon-bubble {
+    display: none;
+}
+
+/* Show icon with active class */
+.chat-icon-x.active,
+.chat-icon-bubble.active {
+    display: block;
+}
+
+/* Animation for showing the bubble icon */
+.chat-icon-bubble.active {
+    animation: bubbleAnimation 0.3s ease-in-out;
+}
+
+/* Animation for showing the close icon */
+.chat-icon-x.active {
+    animation: closeAnimation 0.3s ease-in-out;
+}
+
+/* Keyframes for bubbleAnimation */
+@keyframes bubbleAnimation {
+    from {
+        opacity: 0;
+        transform: scale(0) rotate(40deg);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* Keyframes for closeAnimation */
+@keyframes closeAnimation {
+    from {
+        opacity: 0;
+        transform: scale(0.5) rotate(-40deg);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
