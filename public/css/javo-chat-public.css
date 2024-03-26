@@ -56,6 +56,9 @@ Chat Messages Styles:
     --my-chat-content-bg: #6179ff;
     --my-chat-content-text: #fff;
     --my-chat-content-link: #a5b9ff;
+
+    --jv-bg-secondary: var(--secondary-bg-color);
+    --jv-color-border: var(--bs-border-color);
 }
 
 
@@ -109,6 +112,8 @@ Chat Messages Styles:
 } */
 .chat-wrap {
 
+    .nav-pills .nav-link.active,
+    .nav-pills .show>.nav-link,
     .card,
     #email-input-container,
     #javo-interface-inner,
@@ -121,11 +126,16 @@ Chat Messages Styles:
     }
 }
 
-.search-form .form-control,
-.last-message,
-#chat-partners-title,
-.badge.chat-time-line {
-    color: var(--secondary-text-color);
+.chat-wrap {
+
+    .search-form .form-control,
+    .last-message,
+    #chat-partners-title,
+    .badge.chat-time-line,
+    .nav-pills .nav-link.active,
+    .nav-pills .show>.nav-link {
+        color: var(--secondary-text-color);
+    }
 }
 
 .last-message {
@@ -203,10 +213,15 @@ Chat Messages Styles:
 
 
 /* Search */
-#chatSearchTab {
+#chatSearchTabContent {
     height: 422px;
     overflow: auto;
 }
+
+#chatSearchTabTitles .badge {
+    background-color: var(--my-chat-content-bg);
+}
+
 
 #chat-messages .message .chat-content-options,
 #admin-notice {

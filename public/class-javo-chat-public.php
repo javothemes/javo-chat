@@ -264,6 +264,7 @@ class Javo_Chat_Public {
         if (is_user_logged_in()) {
             // Get current user's ID
             $sender_id = get_current_user_id();
+            $is_login = true;
         } else {
             // If user is not logged in, set a default sender_id
             $sender_id = ''; // After email input, the sender_id will be here. It's for showing email input or not ( sender_id has not assigned)
@@ -271,6 +272,7 @@ class Javo_Chat_Public {
             if (isset($_COOKIE['visitor_email'])) {
                 $sender_id = $_COOKIE['visitor_email'];
             }
+            $is_login = false;
         }
 
         //echo "jv_chat_mode1: ". $jv_chat_mode;
@@ -279,7 +281,7 @@ class Javo_Chat_Public {
         ob_start();
         ?>
         <div id="chatToastContainer" class="jv-sheme-skin5 toast-container position-fixed end-0 p-3" style="z-index: 10000"></div>
-        <div id="javo-chat-wrap" class="chat-wrap <?php echo $jv_chat_mode; ?> rounded-4 shadow" data-jv-chat-mode="<?php echo $jv_chat_mode; ?>" data-jv-chat-isBlocked="true" data-jv-chat-isMyself="true">
+        <div id="javo-chat-wrap" class="chat-wrap <?php echo $jv_chat_mode; ?> rounded-4 shadow" data-jv-chat-mode="<?php echo $jv_chat_mode; ?>" data-jv-chat-isLogin="<?php echo $is_login ? 'true' : 'false'; ?>">
             <?php if ($jv_chat_mode !=='chat_single_mode') { ?>
             <!-- Sidebar -->
             <div class="chat-side d-flex flex-column align-items-center border-end px-2 my-3">
@@ -362,10 +364,10 @@ class Javo_Chat_Public {
                         <div class="input-group mb-3 position-relative">
                             <input type="text" class="form-control jv-bg-secondary border-0 fs-6 jv-color-text form-control-lg py-3 px-3 me-1 flex-grow-1 rounded-3" placeholder="Search for users, messages..." id="search-input">
                             <div class="input-group-append">
-                                <span id="spinner" class="spinner-border spinner-border-sm text-primary" role="status" style="display: none;">
+                                <span id="spinner" class="spinner-border spinner-border-sm text-primary me-2" role="status" style="display: none;">
                                     <span class="sr-only">Loading...</span>
                                 </span>
-                                <button id="clear-search" class="btn btn m-0 p-0" style="display: none;">
+                                <button id="clear-search" class="btn btn me-1 p-0" style="display: none;">
                                     <i class="feather feather-x-circle"></i>
                                 </button>
                             </div>

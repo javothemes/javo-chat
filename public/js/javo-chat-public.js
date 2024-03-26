@@ -1327,18 +1327,18 @@ Move to the message ( when you click the message : search or saved )
 
 				// Create tabs HTML
 				const tabsHTML = `
-            <ul class="nav nav-tabs fs-6" id="myTab" role="tablist">
+            <ul class="nav nav nav-pills nav-fill fs-6" id="chatSearchTabTitles" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">All [${allCount}]</button>
+                    <button class="nav-link position-relative active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">All <span class="badge position-absolute top-0 end-0">${allCount}</span></button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="user-tab" data-bs-toggle="tab" data-bs-target="#user" type="button" role="tab" aria-controls="user" aria-selected="false">Users [${userCount}]</button>
+                    <button class="nav-link position-relative" id="user-tab" data-bs-toggle="tab" data-bs-target="#user" type="button" role="tab" aria-controls="user" aria-selected="false">Users <span class="badge position-absolute top-0 end-0">${userCount}</span></button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="message-tab" data-bs-toggle="tab" data-bs-target="#message" type="button" role="tab" aria-controls="message" aria-selected="false">Messages [${messageCount}]</button>
+                    <button class="nav-link position-relative" id="message-tab" data-bs-toggle="tab" data-bs-target="#message" type="button" role="tab" aria-controls="message" aria-selected="false">Messages <span class="badge position-absolute top-0 end-0">${messageCount}</span></button>
                 </li>
             </ul>
-            <div class="tab-content" id="chatSearchTab">
+            <div class="tab-content" id="chatSearchTabContent">
                 <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
                     ${allHTML}
                 </div>
