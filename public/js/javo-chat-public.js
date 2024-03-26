@@ -774,7 +774,6 @@ Move to the message ( when you click the message : search or saved )
 			}
 
 			function updateParticipantPanelWithAjax(receiverId) {
-				console.log('ajax');
 				$.ajax({
 					type: 'POST',
 					url: chatSettings.ajax_url,
@@ -785,27 +784,28 @@ Move to the message ( when you click the message : search or saved )
 					},
 					success: function (response) {
 						if (response.success) {
-							console.log('getPartner :', JSON.stringify(response.data.userData));
 							var userData = response.data.userData;
 							updateParticipantPanel(receiverId, userData.displayName, userData.avatarUrl, userData.unreadMessagesCount, userData.userStatus, userData.userLastActive, userData.favoriteUser, userData.blockedUser);
 							updateParticipantDetailPanel(receiverId, userData.displayName, userData.avatarUrl, userData.unreadMessagesCount, userData.userStatus, userData.userLastActive, userData.favoriteUser, userData.blockedUser);
-							// Check if the user is blocked or trying to chat with oneself
-							if (response.data.userData.isBlocked || response.data.userData.isMyself) {
-								// If blocked or chatting with oneself, disable the message input
+							// Check if the user is blocked
+							if (userData.isBlocked) {
+								// If blocked, disable the message input
+								$('#message-input').prop('disabled', true);
+								// Change the placeholder text to indicate that the user is blocked
+								$('#message-input').attr('placeholder', 'You are currently blocked.');
+							} else if (userData.isMyself) {
+								// If chatting with oneself, disable the message input
 								$('#message-input').prop('disabled', true);
 								// Change the placeholder text to indicate the reason for disabled input
-								if (response.data.userData.isBlocked) {
-									$('#message-input').attr('placeholder', 'You are currently blocked and cannot send messages.');
-								} else {
-									$('#message-input').attr('placeholder', 'You can\'t send messages to yourself.');
-								}
+								$('#message-input').attr('placeholder', 'Can\'t send messages to yourself.');
+								$('#chat-messages').empty(); // If chatting with oneself, empty the chat messages container
+								stopCheckingForMessages(); // Stop checking new messages
 							} else {
 								// If not blocked or chatting with oneself, enable the message input
 								$('#message-input').prop('disabled', false);
 								// Restore the original placeholder text
 								$('#message-input').attr('placeholder', 'Type and press Enter to send...');
 							}
-
 						} else {
 							console.error('Failed to fetch user data.');
 						}

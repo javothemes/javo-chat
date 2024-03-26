@@ -815,9 +815,6 @@ class Javo_Chat_Public {
         $receiverId = isset($_POST['receiverId']) ? $_POST['receiverId'] : '';
         $currentUserId = get_current_user_id(); // Get the current user's ID
 
-        error_log('get_chatPartnerSingle id: '. $receiverId);
-        error_log('get_chatPartnerSingle uid: '. $currentUserId);
-
        // Default response
         $userData = array(
             'isBlocked' => false,
@@ -835,7 +832,7 @@ class Javo_Chat_Public {
         if ($currentUserId == $receiverId) {
             $userData['isMyself'] = true;
             // Set isBlocked to true to disable message input for oneself
-            $userData['isBlocked'] = true;
+            // $userData['isBlocked'] = true;
         } else {
             // Check if the current user has been blocked by the receiver
             $blockedUsers = get_user_meta($receiverId, 'chat-block-users', true);
