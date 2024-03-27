@@ -85,12 +85,8 @@ Move to the message ( when you click the message : search or saved )
 			// Check if it's single mode and the user is not logged in
 			if (jv_chat_mode === 'chat_single_mode') {
 
-				// console.log('single');
-				//if (chatSettings.is_logged_in === 'false') {
-
 				// receiverId = 1; // Assuming 1 is the receiverId for the admin or target chat. It's for temp.
-				const receiverId = $wrap.data('jv-chat-receiver-id');
-				//senderId = 'freeace00@gmail.com'; // Temp user id ( visitor). It will be from email input
+				receiverId = $wrap.data('jv-chat-receiver-id');
 
 				console.log('single-senderId : ' + senderId);
 
@@ -98,9 +94,9 @@ Move to the message ( when you click the message : search or saved )
 					$('#chat-interface').show();
 					initializeChatInterface(receiverId); // Init by the receiverId
 
-					console.log('single visitor-senderId2 : ' + senderId);
-					console.log('single visitor-receiverId :', receiverId);
-					console.log('single visitor-initMsgAmount :', initMsgAmount);
+					// console.log('single visitor-senderId2 : ' + senderId);
+					// console.log('single visitor-receiverId :', receiverId);
+					// console.log('single visitor-initMsgAmount :', initMsgAmount);
 					// Existing logic to retrieve and display messages
 					loadMsgAmount = initMsgAmount; // Reset the load msg amount if it's not the 1st click
 					getChatMessages(loadMsgAmount, function () {
@@ -137,7 +133,7 @@ Move to the message ( when you click the message : search or saved )
 								nonce: chatSettings.nonce // Nonce value for security
 							},
 							success: function (response) {
-								console.log('Response:', response); // Add this line to log the response
+								// console.log('Response:', response); // Add this line to log the response
 								// Handle the response from the server
 								if (response.success) {
 									// Check if sender_id exists in the response
@@ -155,9 +151,9 @@ Move to the message ( when you click the message : search or saved )
 										// Add the sender_id to the HTML
 										initializeChatInterface(receiverId); // Init by the receiverId
 
-										console.log('single visitor-senderId2 : ' + senderId);
-										console.log('single visitor-receiverId :', receiverId);
-										console.log('single visitor-initMsgAmount :', initMsgAmount);
+										// console.log('single visitor-senderId2 : ' + senderId);
+										// console.log('single visitor-receiverId :', receiverId);
+										// console.log('single visitor-initMsgAmount :', initMsgAmount);
 										// Existing logic to retrieve and display messages
 										loadMsgAmount = initMsgAmount; // Reset the load msg amount if it's not the 1st click
 										getChatMessages(loadMsgAmount, function () {
@@ -344,9 +340,9 @@ Move to the message ( when you click the message : search or saved )
 
 			// Function to retrieve messages
 			function getChatMessages(msgAmount, callback) {
-				//console.log("------ Retrieving Chat Messages ------");
-				//console.log("Sender ID: " + senderId);
-				//console.log("Receiver ID: " + receiverId);
+				console.log("------ Retrieving Chat Messages ------");
+				console.log("Sender ID: " + senderId);
+				console.log("Receiver ID: " + receiverId);
 				//console.log("Is First Page Load: " + isFirstPageLoad);
 				//console.log("Has User Attempted To Load More: " + hasUserAttemptedToLoadMore);
 

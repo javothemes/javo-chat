@@ -254,7 +254,6 @@ class Javo_Chat_Public {
 
             // Get the author id
             $author_id = get_post_field('post_author', get_the_ID());
-            error_log('lisitng author id'. $author_id);
 
             // Output the shortcode
             echo do_shortcode('[javo_chat mode="chat_single_mode" receiver_id="' . $author_id . '"]');
