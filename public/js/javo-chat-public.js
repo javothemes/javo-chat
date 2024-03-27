@@ -198,6 +198,13 @@ Move to the message ( when you click the message : search or saved )
 					$('#javo-chat-wrap').toggle();
 				});
 
+				// Add an event listener for clicks on the document
+				$(document).on('click', function (event) {
+					// Check if it's single mode, the chat wrap is visible, and the click was outside the chat wrap
+					if (jv_chat_mode === 'chat_single_mode' && $('#javo-chat-wrap').is(':visible') && !$(event.target).closest('#javo-chat-wrap, #jv-floating-chat-button').length) {
+						$('#javo-chat-wrap').hide(); // Hide the chat wrap
+					}
+				});
 
 			}
 

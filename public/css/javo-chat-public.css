@@ -81,6 +81,7 @@ Chat Messages Styles:
 
 .chat-wrap.chat_single_mode {
     width: 500px;
+    cursor: move;
 }
 
 #send-button {
