@@ -172,6 +172,9 @@ class Javo_Chat_Public {
         // Chat Owner Notice
         add_action('wp_ajax_get_chat_owner_notice', array($this, 'get_chat_owner_notice_callback'));
         add_action('wp_ajax_nopriv_get_chat_owner_notice', array($this, 'get_chat_owner_notice_callback'));
+
+        // Hook into the WordPress footer to run the shortcode
+        add_action('wp_footer', array($this, 'run_chat_shortcode_for_lv_listing'));
    
     }
 
@@ -245,6 +248,20 @@ class Javo_Chat_Public {
         }
     }
 
+    public function run_chat_shortcode_for_lv_listing() {
+    // Check if the current page is a single page for the 'lv_listing' post type
+        if (is_singular('lv_listing')) {
+
+            // Get the author id
+            $author_id = get_post_field('post_author', get_the_ID());
+            error_log('lisitng author id'. $author_id);
+
+            // Output the shortcode
+            echo do_shortcode('[javo_chat mode="chat_single_mode" receiver_id="' . $author_id . '"]');
+
+        }
+    }
+
     // Registering a shortcode to display a chat interface
     public function javo_chat_shortcode($atts) {
         // Define default attributes for the shortcode
@@ -259,6 +276,7 @@ class Javo_Chat_Public {
         // Assign the 'mode' attribute value to a global variable
         global $javo_chat_mode;
         $javo_chat_mode = $atts['mode'];
+        $receiver_id = $atts['receiver_id'];
 
         // Check if user is logged in
         if (is_user_logged_in()) {
@@ -268,7 +286,7 @@ class Javo_Chat_Public {
         } else {
             // If user is not logged in, set a default sender_id
             $sender_id = ''; // After email input, the sender_id will be here. It's for showing email input or not ( sender_id has not assigned)
-            $receiver_id = 1; // Just for a test or admin
+            // $receiver_id = 1; // Just for a test or admin
             if (isset($_COOKIE['visitor_email'])) {
                 $sender_id = $_COOKIE['visitor_email'];
             }
@@ -281,7 +299,7 @@ class Javo_Chat_Public {
         ob_start();
         ?>
         <div id="chatToastContainer" class="jv-sheme-skin5 toast-container position-fixed end-0 p-3" style="z-index: 10000"></div>
-        <div id="javo-chat-wrap" class="chat-wrap <?php echo $jv_chat_mode; ?> rounded-4 shadow" data-jv-chat-mode="<?php echo $jv_chat_mode; ?>" data-jv-chat-isLogin="<?php echo $is_login ? 'true' : 'false'; ?>">
+        <div id="javo-chat-wrap" class="chat-wrap <?php echo $jv_chat_mode; ?> rounded-4 shadow" data-jv-chat-mode="<?php echo $jv_chat_mode; ?>" data-jv-chat-receiver-id="<?php echo $receiver_id; ?>" data-jv-chat-isLogin="<?php echo $is_login ? 'true' : 'false'; ?>">
             <?php if ($jv_chat_mode !=='chat_single_mode') { ?>
             <!-- Sidebar -->
             <div class="chat-side d-flex flex-column align-items-center border-end px-2 my-3">

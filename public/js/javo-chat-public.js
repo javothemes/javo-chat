@@ -88,7 +88,8 @@ Move to the message ( when you click the message : search or saved )
 				// console.log('single');
 				//if (chatSettings.is_logged_in === 'false') {
 
-				receiverId = 1; // Assuming 1 is the receiverId for the admin or target chat. It's for temp.
+				// receiverId = 1; // Assuming 1 is the receiverId for the admin or target chat. It's for temp.
+				const receiverId = $wrap.data('jv-chat-receiver-id');
 				//senderId = 'freeace00@gmail.com'; // Temp user id ( visitor). It will be from email input
 
 				console.log('single-senderId : ' + senderId);
