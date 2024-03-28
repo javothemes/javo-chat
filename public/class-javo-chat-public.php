@@ -1356,22 +1356,34 @@ class Javo_Chat_Public {
 
 
     /**
-     * Get the number of unread messages for a specific receiver and current user.
+     * Get the number of unread messages for a specific receiver.
+     * If the current user ID is provided, it also considers the current user's involvement in the conversation.
      *
      * @param int $receiver_id The ID of the message receiver.
-     * @param int $current_user_id The ID of the current user.
-     * @return int The number of unread messages.
+     * @param int|null $current_user_id The ID of the current user. If null, only the receiver's unread messages are counted.
+     * @return int The number of unread messages for the receiver.
      */
-    private function get_unread_messages_count($receiver_id, $current_user_id) {
+    private function get_unread_messages_count($receiver_id, $current_user_id = null) {
         global $wpdb;
         $meta_table_name = $wpdb->prefix . 'javo_core_conversations_meta';
-        $query = $wpdb->prepare(
-            "SELECT COUNT(*) FROM $meta_table_name WHERE `meta_value` = %s AND `meta_key` = 'message_status' AND `conversation_id` IN (SELECT id FROM wp_javo_core_conversations WHERE receiver_id = %s AND sender_id = %s)",
-            'unread',
-            $current_user_id,
-            $receiver_id
-        );
-        // error_log('unread :'. $query);
+
+        if ($current_user_id !== null) {
+            // If the current user ID is provided, consider the current user's involvement in the conversation.
+            $query = $wpdb->prepare(
+                "SELECT COUNT(*) FROM $meta_table_name WHERE `meta_value` = %s AND `meta_key` = 'message_status' AND `conversation_id` IN (SELECT id FROM wp_javo_core_conversations WHERE receiver_id = %s AND sender_id = %s)",
+                'unread',
+                $current_user_id,
+                $receiver_id
+            );
+        } else {
+            // If the current user ID is not provided, only count the receiver's unread messages.
+            $query = $wpdb->prepare(
+                "SELECT COUNT(*) FROM $meta_table_name WHERE `meta_value` = %s AND `meta_key` = 'message_status' AND `conversation_id` IN (SELECT id FROM wp_javo_core_conversations WHERE receiver_id = %s)",
+                'unread',
+                $receiver_id
+            );
+        }
+
         $unread_count = $wpdb->get_var($query);
         return intval($unread_count);
     }
@@ -2164,8 +2176,9 @@ class Javo_Chat_Public {
             // Updated logic to check 'email_notif_unread' setting
             // Now checks if the setting is not 'off' and not null
             $email_notif_unread = $user_settings['email_notif_unread'] ?? 'off';
-            if ($email_notif_unread !== 'off' && $email_notif_unread !== null) {
-                $unread_messages_count = $this->count_unread_messages($user->ID);
+            //if ($email_notif_unread !== 'off' && $email_notif_unread !== null) {
+                error_log("check_and_send_email_for_unread_messages!444");
+                $unread_messages_count = $this->get_unread_messages_count($user->ID);
 
                 $last_activity = get_user_meta($user->ID, 'jv_last_activity', true);
                 $last_activity_time = strtotime($last_activity);
@@ -2178,7 +2191,7 @@ class Javo_Chat_Public {
                     $admin_id = 1;
                     $this->send_chat_notification_email($admin_id, $user->ID, $notification_message, $notification_title);
                 }
-            }
+            //}
         }
     }
 
