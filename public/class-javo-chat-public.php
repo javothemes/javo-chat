@@ -432,18 +432,32 @@ class Javo_Chat_Public {
                 <div id="javo-interface-inner" class="position-relative flex-column border-1 w-100 h-100 rounded-4" data-sender-id="<?php echo $sender_id; ?>">
                     
                     <div id="participant-panel" class="p-4 border-bottom d-flex justify-content-between"></div>
+                     <?php
+                    // Check if notice title and content exist
+                    $notice_title = get_option( 'javo_chat_admin_notice_title', '' );
+                    $notice_content = get_option( 'javo_chat_admin_notice_content', '' );
+                    ?>
+                    <?php if (!empty($notice_title) || !empty($notice_content)) : ?>
                     <div id="admin-notice" class="py-1 px-4">
-                        <p class="d-inline-flex gap-1">
+                        <?php if (!empty($notice_title)) : ?>
+                        <div class="d-inline-flex gap-1">
                             <a class="d-flex align-items-center gap-1" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                                <i class="feather feather-coffee"></i><span>Notice! Don`t Share Private Information...</span>
+                                <i class="feather feather-coffee"></i><span><?php echo esc_html($notice_title); ?></span>
                             </a>
-                        </p>
-                        <div class="collapse" id="collapseExample">
-                        <div class="card card-body border-0">
-                            Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.
                         </div>
+                        <?php endif; ?>
+                        <div class="collapse" id="collapseExample">
+                            <div class="card card-body border-0">
+                                <?php if (!empty($notice_content)) : ?>
+                                <?php echo esc_html($notice_content); ?>
+                                <?php else : ?>
+                                <?php esc_html_e('No content available.', 'your-text-domain'); ?>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
+                    <?php endif; ?>
+
                     <div id="chat-messages" class="pb-2 mb-2 w-100"></div>
                     <div id="loading-message" class="p-5" style="display:none;"><?php echo __('Loading...', 'your-text-domain'); ?> <div class="spinner-grow spinner-grow-sm" role="status"><span class="visually-hidden"><?php echo __('Loading...', 'your-text-domain'); ?></span></div></div>
                     <div id="scrollToBottomButton" class="position-absolute bottom-10 end-0 me-4 mb-4 opacity-50">
