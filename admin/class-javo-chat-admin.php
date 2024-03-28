@@ -126,6 +126,19 @@ class Javo_Chat_Admin {
 			'javo_chat_operator_section' // Section ID
 		);
 
+				// Add cron interval field
+		add_settings_field(
+			'javo_chat_cron_interval', // Field ID
+			'Cron Schedule Interval', // Field title
+			array( $this, 'display_cron_interval_field' ), // Callback function to display field input
+			'javo-chat-settings', // Page slug
+			'javo_chat_operator_section' // Section ID
+		);
+
+		// Register setting for cron interval
+		register_setting( 'javo_chat_settings_group', 'javo_chat_cron_interval', 'intval' );
+
+
 		// Register settings
 		register_setting( 'javo_chat_settings_group', 'javo_chat_admin_notice_title' );
 		register_setting( 'javo_chat_settings_group', 'javo_chat_admin_notice_content' );
@@ -173,6 +186,17 @@ class Javo_Chat_Admin {
 		<p>
 			<label for="javo_chat_admin_notice_content">Notice Content:</label><br>
 			<textarea id="javo_chat_admin_notice_content" name="javo_chat_admin_notice_content"><?php echo esc_textarea( $operator_notice_content ); ?></textarea>
+		</p>
+		<?php
+	}
+
+	public function display_cron_interval_field() {
+		// Get cron interval from options, default to 1440 minutes (24 hours)
+		$cron_interval_minutes = get_option('javo_chat_cron_interval', 1440);
+		?>
+		<p>
+			<label for="javo_chat_cron_interval">Cron Interval (minutes):</label><br>
+			<input type="number" id="javo_chat_cron_interval" name="javo_chat_cron_interval" value="<?php echo esc_attr($cron_interval_minutes); ?>" min="1">
 		</p>
 		<?php
 	}

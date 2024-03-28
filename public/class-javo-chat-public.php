@@ -2159,7 +2159,7 @@ class Javo_Chat_Public {
         }
         if($create_schedule) {
             error_log("setup_custom_cron_schedule_for_emails!222");
-            wp_schedule_event(time(), 'every_five_minutes', 'check_and_send_email_for_unread_messages');
+            wp_schedule_event(time(), 'every_custom_minutes', 'check_and_send_email_for_unread_messages');
         }
     }
 
@@ -2204,9 +2204,13 @@ class Javo_Chat_Public {
      * @return array The modified list of cron schedules, including the new interval.
      */
     function add_custom_cron_interval($schedules) {
-        $schedules['every_five_minutes'] = array(
-            'interval' => 10, // Interval in seconds
-            'display' => __('Every Five Minutes')
+        // Get cron interval from the plugin settings, default to 1440 minutes (24 hours) if not set
+        $interval_minutes = get_option('javo_chat_cron_interval', 1440); // Default is 24 hours
+        $interval = $interval_minutes * 60; // Convert minutes to seconds
+        
+        $schedules['every_custom_minutes'] = array(
+            'interval' => $interval, // Use the interval from the settings
+            'display' => sprintf(__('Every %d Minutes'), $interval_minutes) // Display in minutes
         );
         return $schedules;
     }
