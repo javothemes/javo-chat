@@ -1950,13 +1950,22 @@ class Javo_Chat_Public {
         wp_send_json_success(array('loadMsgAmount' => $messages_until_target));
     }
 
-    // Function to save history record
+    /**
+     * Saves a history record into the database.
+     *
+     * @param int $user_id User ID associated with the action.
+     * @param string $action_type Type of action performed.
+     * @param int|null $target_id Optional ID of the target associated with the action.
+     */
     public function save_history($user_id, $action_type, $target_id = null) {
         global $wpdb;
         $query = $wpdb->prepare("INSERT INTO wp_javo_history (user_id, action_type, target_id) VALUES (%d, %s, %d)", $user_id, $action_type, $target_id);
         $wpdb->query($query);
     }
-    
+
+    /**
+     * Loads the action history for the current user.
+     */
     public function handle_load_action_history() {
         check_ajax_referer('chatSecurityNonce', 'nonce');
         
@@ -1986,42 +1995,73 @@ class Javo_Chat_Public {
         }
     }
 
+    /**
+     * Checks and sends an email notification upon message send, and logs the interaction.
+     *
+     * @param int $message_id ID of the message sent.
+     * @param int $sender_id ID of the sender.
+     * @param int $receiver_id ID of the receiver.
+     * @param string $message Message content.
+     */
     public function check_send_email_callback($message_id, $sender_id, $receiver_id, $message) {
-        error_log("check_send_email_callback: " . $sender_id);
-        // Get user chat settings
-        $user_settings = $this->get_user_chat_settings();
-        if ($user_settings) {
-            $email_notif_unread = isset($user_settings['email_notif_unread']) ? $user_settings['email_notif_unread'] : 'off';
-            $email_notif_new_chat = isset($user_settings['email_notif_new_chat']) ? $user_settings['email_notif_new_chat'] : 'off';
-            $email_notif_offline_chat = isset($user_settings['email_notif_offline_chat']) ? $user_settings['email_notif_offline_chat'] : 'off';
-            // Add other settings here if needed
-        } else {
-            // Set default values if user settings are not available
-            $email_notif_unread = 'off';
-            $email_notif_new_chat = 'off';
-            $email_notif_offline_chat = 'off';
-            // Set default values for other settings if needed
-        }
 
-        // Check if receiver is offline
-        if (!$this->is_user_online($receiver_id)) {
-            // Check if email notification for new chat is enabled and it's the first message
-            if ($email_notif_new_chat === 'on' && $this->is_first_message($sender_id, $receiver_id)) {
-                $title = "New Message";
-                $this->send_chat_notification_email($sender_id, $receiver_id, $message, $title);
-            }
-            
-            // Check if email notification for offline chat is enabled and there are new messages
-            if ($email_notif_offline_chat === 'on' && $this->is_offline_new_message($receiver_id)) {
-                // Duplicated emailing prevent.
+        // Fetch user chat settings
+        $user_settings = $this->get_user_chat_settings($receiver_id); // Assuming this function exists and it fetches user-specific settings
+        $email_notif_unread = $user_settings['email_notif_unread'] ?? 'off';
+        $email_notif_new_chat = $user_settings['email_notif_new_chat'] ?? 'off';
+        $email_notif_offline_chat = $user_settings['email_notif_offline_chat'] ?? 'off';
+
+        // Time frame to limit email notifications
+        $email_limit_time_frame = 3600; // 1 hour in seconds
+        $last_email_time = get_user_meta($receiver_id, 'jv_last_email_notification_time', true);
+        $current_time = current_time('timestamp');
+
+        // Only proceed if enough time has passed since the last email was sent
+        if (!$last_email_time || ($current_time - $last_email_time) > $email_limit_time_frame) {
+            if (!$this->is_user_online($receiver_id)) {
+                $title = '';
+                // New chat email notification
                 if ($email_notif_new_chat === 'on' && $this->is_first_message($sender_id, $receiver_id)) {
-                    return;
-                } else {
+                    $title = "New Message";
+                    $this->send_chat_notification_email($sender_id, $receiver_id, $message, $title);
+                }
+                // Offline chat email notification
+                elseif ($email_notif_offline_chat === 'on' && $this->is_offline_new_message($receiver_id)) {
                     $title = "Offline Message";
                     $this->send_chat_notification_email($sender_id, $receiver_id, $message, $title);
                 }
+                // Update the last email sent time
+                update_user_meta($receiver_id, 'jv_last_email_notification_time', $current_time);
+                // Log this email transaction
+                if (!empty($title)) {
+                    $this->log_email_transaction($receiver_id, $title);
+                }
             }
         }
+    }
+
+    /**
+     * Logs the email transaction in the user's meta.
+     *
+     * @param int $receiver_id ID of the email receiver.
+     * @param string $title Title of the email sent.
+     */
+    protected function log_email_transaction($receiver_id, $title) {
+        $email_log = get_user_meta($receiver_id, 'jv_chat_email_log', true);
+        if (!empty($email_log)) {
+            $email_log = json_decode($email_log, true);
+        } else {
+            $email_log = [];
+        }
+
+        // Add the new log entry
+        $email_log[] = [
+            'time' => current_time('mysql', 1),
+            'title' => $title
+        ];
+
+        // Update the user meta with the new log
+        update_user_meta($receiver_id, 'jv_chat_email_log', json_encode($email_log));
     }
 
     /**
