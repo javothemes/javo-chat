@@ -2138,7 +2138,7 @@ class Javo_Chat_Public {
         error_log("setup_custom_cron_schedule_for_emails111!");
         $create_schedule = false;
         if(wp_next_scheduled('check_and_send_email_for_unread_messages')) {
-            if(time() < wp_next_scheduled('check_and_send_email_for_unread_messages')) {
+            if(wp_next_scheduled('check_and_send_email_for_unread_messages') < time()) {
                 wp_clear_scheduled_hook('check_and_send_email_for_unread_messages');
                 $create_schedule = true;
             }

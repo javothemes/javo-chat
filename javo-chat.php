@@ -16,7 +16,7 @@
  * Plugin Name:       Javo Chat
  * Plugin URI:        https://javothemes.com
  * Description:       Javo Chat!
- * Version:           1.0.0.9
+ * Version:           1.0.0.10
  * Author:            Javo
  * Author URI:        https://javothemes.com/
  * License:           GPL-2.0+
