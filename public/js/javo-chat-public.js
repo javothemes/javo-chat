@@ -1780,7 +1780,7 @@ Move to the message ( when you click the message : search or saved )
 						actionDescription = `removed ${history.targetDisplayName} from saved msg.`;
 						break;
 					default:
-						actionDescription = `performed an unknown action.`;
+						actionDescription = `${history.action_type} - ${history.targetDisplayName}.`;
 				}
 
 				return `

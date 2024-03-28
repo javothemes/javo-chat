@@ -156,6 +156,7 @@ class Javo_Chat_Public {
         // Email Cron
         add_action('wp', array($this, 'setup_custom_cron_schedule_for_emails'));
         add_action('check_and_send_email_for_unread_messages', array($this, 'check_and_send_email_for_unread_messages'));
+        add_filter('cron_schedules', array($this, 'add_custom_cron_interval'));
 
         // Get Message Position - Load msg amount
         add_action('wp_ajax_calculate_load_msg_amount', array($this, 'calculate_load_msg_amount_callback'));
@@ -536,6 +537,7 @@ class Javo_Chat_Public {
             <?php
             $user_settings = $this->get_user_chat_settings();
             if ($user_settings) {
+                // Settings are available
                 $email_notif_unread = isset($user_settings['email_notif_unread']) ? $user_settings['email_notif_unread'] : 'off';
                 $email_notif_new_chat = isset($user_settings['email_notif_new_chat']) ? $user_settings['email_notif_new_chat'] : 'off';
                 $email_notif_offline_chat = isset($user_settings['email_notif_offline_chat']) ? $user_settings['email_notif_offline_chat'] : 'off';
@@ -547,17 +549,9 @@ class Javo_Chat_Public {
                 $chat_owner_notice = isset($user_settings['chat_owner_notice']) ? $user_settings['chat_owner_notice'] : '';
                 $greeting_message = isset($user_settings['greeting_message']) ? $user_settings['greeting_message'] : '';
             } else {
-                // Default
-                $email_notif_unread = 'off';
-                $email_notif_new_chat = 'off';
-                $email_notif_offline_chat = 'off';
-                $new_chat_time = '0';
-                $sound_notification = 'off';
-                $message_preview = 'off';
-                $auto_reply = 'off';
-                $chat_theme = 'Default';
-                $greeting_message = '';
-                $chat_owner_notice = '';
+                // User is not logged in or settings are not available; handle accordingly
+                // Since the function already returns default settings if the user is logged in but no settings are found,
+                // you may want to add specific logic here for when the user is not logged in.
             }
             ?>
             <div id="chat-settings-page" class="settings-wrap p-4 flex-grow-1 my-4 position-relative rounded-3">
@@ -1766,7 +1760,7 @@ class Javo_Chat_Public {
         }
 
         // Save all settings as a single meta key
-        update_user_meta($user_id, 'chat_settings', $user_settings);
+        update_user_meta($user_id, 'jv_chat_settings', $user_settings);
 
         // Send success response with user settings and avatar URL
         wp_send_json_success($response_data);
@@ -1791,7 +1785,7 @@ class Javo_Chat_Public {
         }
 
         // Attempt to retrieve the chat settings array from the user's meta data.
-        $chat_settings = get_user_meta($user_id, 'chat_settings', true);
+        $chat_settings = get_user_meta($user_id, 'jv_chat_settings', true);
 
         // Check if the specific setting exists within the retrieved chat settings.
         if (is_array($chat_settings) && isset($chat_settings[$setting_name])) {
@@ -1854,11 +1848,29 @@ class Javo_Chat_Public {
         if (!is_user_logged_in()) {
             return false;
         }
+        
         $user_id = get_current_user_id();
-        $user_settings = get_user_meta($user_id, 'chat_settings', true);
-
+        $user_settings = get_user_meta($user_id, 'jv_chat_settings', true);
+        
+        if (!$user_settings) {
+            // Default settings
+            return [
+                'email_notif_unread' => 'off',
+                'email_notif_new_chat' => 'off',
+                'email_notif_offline_chat' => 'off',
+                'new_chat_time' => '0',
+                'sound_notification' => 'off',
+                'message_preview' => 'off',
+                'auto_reply' => 'off',
+                'chat_theme' => 'Default',
+                'greeting_message' => '',
+                'chat_owner_notice' => '',
+            ];
+        }
+        
         return $user_settings;
     }
+
     
     public function update_user_status_callback() {
         check_ajax_referer('chatSecurityNonce', 'nonce');
@@ -2117,51 +2129,66 @@ class Javo_Chat_Public {
         return $new_messages_count > 0;
     }
 
-    // Custom action to setup cron schedule for checking unread messages
+    /**
+     * Sets up a custom cron schedule for email notifications.
+     * This function ensures the 'check_and_send_email_for_unread_messages' action is scheduled to run every five minutes.
+     * It's designed to allow more frequent checks and email notifications for unread messages.
+     */
     public function setup_custom_cron_schedule_for_emails() {
+                error_log("setup_custom_cron_schedule_for_emails111!");
+
         if (!wp_next_scheduled('check_and_send_email_for_unread_messages')) {
-            wp_schedule_event(time(), 'hourly', 'check_and_send_email_for_unread_messages');
+                            error_log("setup_custom_cron_schedule_for_emails!222");
+
+            wp_schedule_event(time(), 'every_five_minutes', 'check_and_send_email_for_unread_messages');
         }
     }
 
-    // Function to check unread messages and send email if conditions are met
+    /**
+     * Checks for unread messages and sends email notifications to users if certain conditions are met.
+     * This function iterates over all users, checks if they have enabled email notifications for unread messages,
+     * and if they have unread messages. If a user is offline and has unread messages, an email notification is sent.
+     */
     public function check_and_send_email_for_unread_messages() {
+        error_log("check_and_send_email_for_unread_messages!");
         $users = get_users();
         foreach ($users as $user) {
-            // Check if email notification for unread messages is enabled
-            $email_notif_unread = get_user_meta($user->ID, 'email_notif_unread', true);
-            if ($email_notif_unread === 'on') {
-                $unread_messages_count = $this->count_unread_messages($user->ID); // 읽지 않은 메시지 수 확인
+            $user_settings = $this->get_user_chat_settings($user->ID);
+            // Updated logic to check 'email_notif_unread' setting
+            // Now checks if the setting is not 'off' and not null
+            $email_notif_unread = $user_settings['email_notif_unread'] ?? 'off';
+            if ($email_notif_unread !== 'off' && $email_notif_unread !== null) {
+                $unread_messages_count = $this->count_unread_messages($user->ID);
 
-                // Check if user is offline for more than an hour and has unread messages
                 $last_activity = get_user_meta($user->ID, 'jv_last_activity', true);
                 $last_activity_time = strtotime($last_activity);
                 $current_time = current_time('timestamp');
 
                 if ($current_time - $last_activity_time > 3600 && $unread_messages_count > 0) {
-                    // Compose email title and message
                     $notification_title = "Unread Messages Notification";
                     $notification_message = sprintf("You have %d unread message(s) waiting for you. Please check your chat.", $unread_messages_count);
 
-                    // Use admin ID as sender_id
                     $admin_id = 1;
-
-                    // Send email notification
                     $this->send_chat_notification_email($admin_id, $user->ID, $notification_message, $notification_title);
                 }
             }
         }
     }
 
-    // Function to count unread messages for a user
-    public function count_unread_messages($user_id) {
-        global $wpdb;
-        $unread_messages_count = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}javo_core_conversations_meta
-            WHERE meta_key = 'message_status' AND meta_value = 'unread' AND user_id = %d",
-            $user_id
-        ));
-        return $unread_messages_count;
+    /**
+     * Adds a custom interval to the WordPress cron schedule.
+     * This function introduces a new interval of every five minutes, allowing for more frequent scheduled tasks.
+     * It's used in conjunction with the setup_custom_cron_schedule_for_emails function to enable more frequent email checks.
+     *
+     * @param array $schedules The existing cron schedules.
+     * @return array The modified list of cron schedules, including the new interval.
+     */
+    function add_custom_cron_interval($schedules) {
+        $schedules['every_five_minutes'] = array(
+            'interval' => 10, // Interval in seconds
+            'display' => __('Every Five Minutes')
+        );
+        return $schedules;
     }
 
     /**
