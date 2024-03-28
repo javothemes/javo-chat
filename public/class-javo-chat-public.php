@@ -2135,12 +2135,11 @@ class Javo_Chat_Public {
      * It's designed to allow more frequent checks and email notifications for unread messages.
      */
     public function setup_custom_cron_schedule_for_emails() {
-                error_log("setup_custom_cron_schedule_for_emails111!");
+        error_log("setup_custom_cron_schedule_for_emails111!");
 
         if (!wp_next_scheduled('check_and_send_email_for_unread_messages')) {
-                            error_log("setup_custom_cron_schedule_for_emails!222");
-
-            wp_schedule_event(time(), 'every_five_minutes', 'check_and_send_email_for_unread_messages');
+        error_log("setup_custom_cron_schedule_for_emails!222");
+            wp_schedule_event(time(), 'every_five_minutes', 'aaaa');
         }
     }
 
