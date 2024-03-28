@@ -2206,6 +2206,7 @@ class Javo_Chat_Public {
     function add_custom_cron_interval($schedules) {
         // Get cron interval from the plugin settings, default to 1440 minutes (24 hours) if not set
         $interval_minutes = get_option('javo_chat_cron_interval', 1440); // Default is 24 hours
+        error_log('Cron Interval: ' . get_option('javo_chat_cron_interval', 1440));
         $interval = $interval_minutes * 60; // Convert minutes to seconds
         
         $schedules['every_custom_minutes'] = array(
