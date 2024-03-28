@@ -190,11 +190,6 @@ class Javo_Chat_Public {
         // Load existing scripts and styles
         wp_enqueue_script($this->plugin_name . '-emoji-button', 'https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@3.0.3/dist/index.min.js', array(), $this->version, 'all');
         
-        // Log the mode value for debugging
-        error_log('jv_chat_mode enqueue_scripts : '. $javo_chat_mode);
-        // $javo_chat_mode = 'chat_single_mode';
-        
-        
         // Check if media uploader script is not already enqueued before enqueuing it
         if ( ! wp_script_is('media-upload', 'enqueued') && ! wp_script_is('thickbox', 'enqueued') && ! is_admin()) {
             wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/javo-chat-public.js', array('jquery', 'media-editor'), $this->version, array('in_footer' => true));
@@ -210,6 +205,29 @@ class Javo_Chat_Public {
             'chat_user_id' => $this->get_chat_user_id(),
         ));
     }
+
+    /**
+	 * Register the stylesheets for the public-facing side of the site.
+	 *
+     * @since    1.0.0
+	 */
+    public function enqueue_styles() {
+
+        /**
+		 * This function is provided for demonstration purposes only.
+		 *
+		 * An instance of this class should be passed to the run() function
+		 * defined in Javo_Chat_Loader as all of the hooks are defined
+		 * in that particular class.
+		 *
+		 * The Javo_Chat_Loader will then create the relationship
+		 * between the defined hooks and the functions defined in this
+		 * class.
+		 */
+
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/javo-chat-public.css', array(), $this->version, 'all' );
+
+	}
 
 
     public function visitor_start_chat_callback() {
@@ -563,12 +581,6 @@ class Javo_Chat_Public {
                         <label class="form-check-label" for="email-notif-offline-chat"><?php esc_html_e('Email notifications for new chat when you are offline', 'your-text-domain'); ?></label>
                     </div>
                     
-                    <!-- Sound notification -->
-                    <div class="setting-item form-check form-switch d-flex align-items-center gap-3">
-                        <input class="form-check-input" type="checkbox" id="sound-notification" <?php echo $sound_notification === 'on' ? 'checked' : ''; ?>>
-                        <label class="form-check-label" for="sound-notification"><?php esc_html_e('Sound Notification', 'your-text-domain'); ?></label>
-                    </div>
-                    
                     <!-- Email notification settings for unread messages -->
                     <div class="setting-item hstack gap-3">
                         <label for="email-notif-unread" class="w-100"><?php esc_html_e('Unread Notification:', 'your-text-domain'); ?></label>
@@ -579,6 +591,12 @@ class Javo_Chat_Public {
                         </select>
                     </div>
 
+                    <!-- Sound notification -->
+                    <div class="setting-item form-check form-switch d-flex align-items-center gap-3">
+                        <input class="form-check-input" type="checkbox" id="sound-notification" <?php echo $sound_notification === 'on' ? 'checked' : ''; ?>>
+                        <label class="form-check-label" for="sound-notification"><?php esc_html_e('Sound Notification', 'your-text-domain'); ?></label>
+                    </div>
+                    
                     <div class="setting-item hstack gap-3">
                         <div for="chat-theme" class="w-100 me-auto"><?php esc_html_e('Chat Theme', 'your-text-domain'); ?></div>
                         <select id="chat-theme" class="form-select">
@@ -923,7 +941,7 @@ class Javo_Chat_Public {
         if (!wp_verify_nonce($_POST['nonce'], 'chatSecurityNonce')) {
             wp_send_json_error('Nonce verification failed');
         }
-        error_log('sendmsg: ok');
+        // error_log('sendmsg: ok');
 
         $sender_id = $_POST['sender_id'];
         $receiver_id = $_POST['receiver_id'];
@@ -934,12 +952,11 @@ class Javo_Chat_Public {
         // Check if required parameters are present
         if (isset($_POST['sender_id']) && isset($_POST['receiver_id'])) {
             $sender_id = $_POST['sender_id'];
-            error_log('sendmsg: '. $sender_id);
-
+            
             $receiver_id = $_POST['receiver_id'];
             $message = isset($_POST['message']) ? stripslashes($_POST['message']) : ''; // Handle case where message might be empty
             $media_id = isset($_POST['media_id']) ? intval($_POST['media_id']) : null; // Get media_id if provided
-
+            
             $table_name = $this->db->prefix . 'javo_core_conversations';
             $data = array(
                 'sender_id' => $sender_id,
@@ -949,11 +966,11 @@ class Javo_Chat_Public {
             );
             $format = array('%s', '%s', '%s', '%s');
             $result = $this->db->insert($table_name, $data, $format);
-
+            
             if ($result !== false) {
                 $message_id = $this->db->insert_id;
                 $this->update_message_status($message_id, $receiver_id, 'unread');
-
+                
                 // If an media_id is provided, store it in the meta table
                 if ($media_id) {
                     $meta_table_name = $this->db->prefix . 'javo_core_conversations_meta';
@@ -965,8 +982,10 @@ class Javo_Chat_Public {
                     $meta_format = array('%d', '%s', '%d');
                     $this->db->insert($meta_table_name, $meta_data, $meta_format);
                 }
-
+                //Check and send notification
+                $this->check_send_email_callback($message_id, $sender_id, $receiver_id, $message);
                 wp_send_json_success('Message inserted successfully');
+                
             } else {
                 wp_send_json_error('Failed to insert message into database');
             }
@@ -1013,7 +1032,7 @@ class Javo_Chat_Public {
 
         // Get receiver ID from AJAX request
         $receiver_id = isset($_POST['receiver_id']) ? $_POST['receiver_id'] : '';
-        error_log('check-receiver_id :'. $receiver_id);
+        // error_log('check-receiver_id :'. $receiver_id);
         // Get the last message ID received by the client to fetch only new messages
         $last_message_id_received = isset($_POST['last_message_id']) ? intval($_POST['last_message_id']) : 0;
 
@@ -1032,7 +1051,7 @@ class Javo_Chat_Public {
         $myuser_id = $this->get_chat_user_id();
         $query = $wpdb->prepare("SELECT * FROM $table_name WHERE (receiver_id = %s AND sender_id = %s) AND id > %d ORDER BY id ASC", $myuser_id, $receiver_id, $last_message_id_received);
 
-        error_log('query(check) : ' . $query);
+        // error_log('query(check) : ' . $query);
 
         // Execute the query
         $new_messages = $wpdb->get_results($query, ARRAY_A);
@@ -1121,8 +1140,8 @@ class Javo_Chat_Public {
         // Attempt to get sender ID from the request
         $sender_id = isset($_POST['sender_id']) ? $_POST['sender_id'] : '';
 
-        error_log('chat_msg_receiver_id1: ' . $receiver_id);
-        error_log('chat_msg_sender_id1: ' . $sender_id);
+        // error_log('chat_msg_receiver_id1: ' . $receiver_id);
+        // error_log('chat_msg_sender_id1: ' . $sender_id);
     
 
         // If sender ID is not provided or is an empty string, use the current logged-in user's ID
@@ -1130,8 +1149,8 @@ class Javo_Chat_Public {
             $sender_id = $this->get_chat_user_id();
         }
 
-        error_log('chat_msg_receiver_id2: ' . $receiver_id);
-        error_log('chat_msg_sender_id2: ' . $sender_id);
+        // error_log('chat_msg_receiver_id2: ' . $receiver_id);
+        // error_log('chat_msg_sender_id2: ' . $sender_id);
 
 
         // Check if the receiver ID is valid
@@ -1146,7 +1165,7 @@ class Javo_Chat_Public {
         // Query one more message than requested to check if more data is available.
         $table_name = $this->db->prefix . 'javo_core_conversations';
         $sql = $this->db->prepare("SELECT * FROM $table_name WHERE (sender_id = %s AND receiver_id = %s) OR (sender_id = %s AND receiver_id = %s) ORDER BY id DESC LIMIT %d", $sender_id, $receiver_id, $receiver_id, $sender_id, $message_count + 1);
-        error_log('Get Chat SQL query: ' . $sql);
+        // error_log('Get Chat SQL query: ' . $sql);
 
         // Execute the SQL query
         $messages = $this->db->get_results($sql, ARRAY_A);
@@ -1812,7 +1831,7 @@ class Javo_Chat_Public {
         check_ajax_referer('chatSecurityNonce', 'nonce');
         // Extract the receiver ID from the POST data, defaulting to 0 if not provided.
         $user_id = isset($_POST['receiver_id']) && $_POST['receiver_id'] !== '' ? intval($_POST['receiver_id']) : 0;
-        error_log("user-id: owner notice: $user_id");
+        // error_log("user-id: owner notice: $user_id");
         if ($user_id <= 0) { // It's visitor
             return;
         }
@@ -1840,8 +1859,135 @@ class Javo_Chat_Public {
 
         return $user_settings;
     }
+    
+    public function update_user_status_callback() {
+        check_ajax_referer('chatSecurityNonce', 'nonce');
+        
+        $user_id = get_current_user_id();
+        $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : '';
+        
+        if (empty($status)) {
+            wp_send_json_error(__('Invalid status value', 'text-domain'));
+            wp_die();
+        }
 
-    public function send_email_callback($message_id, $sender_id, $receiver_id, $message) {
+        // Update user status
+        update_user_meta($user_id, 'jv_chat_user_status', $status);
+        
+        // Prepare data to be sent in AJAX response
+        $response_data = array(
+            'message' => __('User status updated successfully', 'text-domain'),
+            'status' => $status // Add user status to response data
+        );
+
+        // Send AJAX success response with data
+        wp_send_json_success($response_data);
+        
+        // Terminate AJAX handler
+        wp_die();
+    }
+    
+    // Function to get user status and its class
+    public function get_chat_user_status() {
+        // Get the user's status from user meta
+        $user_status = get_user_meta(get_current_user_id(), 'jv_chat_user_status', true);
+        // Set default values
+        $class = 'btn-danger'; // Default class
+        $text = __('Status', 'text-domain'); // Default text
+        // Check user status and set class and text accordingly
+        switch ($user_status) {
+            case 'online':
+                $class = 'chat-user-status-online'; // Online
+                $text = __('Online', 'text-domain'); // Online
+                break;
+                case 'busy':
+                    $class = 'chat-user-status-busy'; // Busy
+                    $text = __('Busy', 'text-domain'); // Busy
+                    break;
+                    case 'away':
+                        $class = 'chat-user-status-away'; // Away
+                        $text = __('Away', 'text-domain'); // Away
+                        break;
+                        default:
+                        // Default class and text remain unchanged
+                        break;
+                    }
+                    // Return an array containing class and text
+        return array(
+            'class' => $class,
+            'text' => $text
+        );
+    }
+    
+    /**
+     * Calculates the amount of messages to load to reach a specific message and its position.
+     * Adds detailed error logging for troubleshooting.
+     */
+    function calculate_load_msg_amount_callback() {
+        global $wpdb;
+        check_ajax_referer('chatSecurityNonce', 'nonce');
+        
+        $message_id = isset($_POST['message_id']) ? intval($_POST['message_id']) : 0;
+        $receiver_id = isset($_POST['receiver_id']) ? intval($_POST['receiver_id']) : 0;
+        $current_user_id = get_current_user_id();
+        
+        if ($message_id <= 0 || $receiver_id <= 0) {
+            wp_send_json_error('Invalid message or receiver ID.');
+            return;
+        }
+        
+        // Use the corrected query to calculate the number of messages until the target
+        $messages_until_target_query = $wpdb->prepare("
+        SELECT COUNT(*) FROM {$wpdb->prefix}javo_core_conversations
+        WHERE 
+        ((sender_id = %d AND receiver_id = %d) OR 
+        (sender_id = %d AND receiver_id = %d)) AND
+        id >= %d
+        ", $receiver_id, $current_user_id, $current_user_id, $receiver_id, $message_id);
+        
+        $messages_until_target = $wpdb->get_var($messages_until_target_query);
+        
+        wp_send_json_success(array('loadMsgAmount' => $messages_until_target));
+    }
+
+    // Function to save history record
+    public function save_history($user_id, $action_type, $target_id = null) {
+        global $wpdb;
+        $query = $wpdb->prepare("INSERT INTO wp_javo_history (user_id, action_type, target_id) VALUES (%d, %s, %d)", $user_id, $action_type, $target_id);
+        $wpdb->query($query);
+    }
+    
+    public function handle_load_action_history() {
+        check_ajax_referer('chatSecurityNonce', 'nonce');
+        
+        global $wpdb;
+        $user_id = get_current_user_id();
+        
+        // Modify the query to also join with the wp_users table based on target_id to get the target's display_name
+        $history = $wpdb->get_results($wpdb->prepare(
+            "SELECT h.id, h.user_id, h.action_type, h.target_id, h.created_at, u.display_name AS userDisplayName, tu.display_name AS targetDisplayName 
+            FROM wp_javo_history h
+            INNER JOIN wp_users u ON h.user_id = u.ID
+            LEFT JOIN wp_users tu ON h.target_id = tu.ID
+            WHERE h.user_id = %d 
+            ORDER BY h.created_at DESC",
+            $user_id
+        ), ARRAY_A);
+        
+        // Format the created_at field using the convert_format_date method
+        foreach ($history as &$entry) {
+            $entry['created_at'] = $this->convert_format_date($entry['created_at']);
+        }
+        
+        if (!empty($history)) {
+            wp_send_json_success($history);
+        } else {
+            wp_send_json_error('No history found.');
+        }
+    }
+
+    public function check_send_email_callback($message_id, $sender_id, $receiver_id, $message) {
+        error_log("check_send_email_callback: " . $sender_id);
         // Get user chat settings
         $user_settings = $this->get_user_chat_settings();
         if ($user_settings) {
@@ -1904,6 +2050,32 @@ class Javo_Chat_Public {
         return $count == 0;
     }
 
+    /**
+     * Check if there are new messages for an offline user
+     *
+     * @param int $receiver_id ID of the receiver to check for new messages
+     * @return bool Returns true if there are new messages for the offline user, false otherwise.
+     */
+    private function is_offline_new_message($receiver_id) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'javo_core_conversations';
+
+        // Fetch the last activity time of the user
+        $last_activity = get_user_meta($receiver_id, 'jv_last_activity', true);
+        $last_activity_time = strtotime($last_activity);
+
+        // Prepare the query to find new messages after the last activity time
+        $query = $wpdb->prepare(
+            "SELECT COUNT(*) FROM $table_name WHERE receiver_id = %d AND submit_date > %s",
+            $receiver_id, date('Y-m-d H:i:s', $last_activity_time)
+        );
+
+        // Execute the query and get the count of new messages
+        $new_messages_count = $wpdb->get_var($query);
+
+        // If there are new messages since the last activity, return true
+        return $new_messages_count > 0;
+    }
 
     // Custom action to setup cron schedule for checking unread messages
     public function setup_custom_cron_schedule_for_emails() {
@@ -1979,7 +2151,7 @@ class Javo_Chat_Public {
             'Reply-To: ' . get_bloginfo('admin_email'), // Set reply-to as admin
         );
 
-        $action_type="Email". $title;
+        $action_type="Email-". $title;
 
         // Log action to history
         $this->save_history($sender_id, $action_type, $receiver_id);
@@ -1996,157 +2168,5 @@ class Javo_Chat_Public {
             error_log("Failed to send chat notification email to $receiver_email.");
         }
     }
-
-    public function update_user_status_callback() {
-        check_ajax_referer('chatSecurityNonce', 'nonce');
-
-        $user_id = get_current_user_id();
-        $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : '';
-
-        if (empty($status)) {
-            wp_send_json_error(__('Invalid status value', 'text-domain'));
-            wp_die();
-        }
-
-        // Update user status
-        update_user_meta($user_id, 'jv_chat_user_status', $status);
-
-        // Prepare data to be sent in AJAX response
-        $response_data = array(
-            'message' => __('User status updated successfully', 'text-domain'),
-            'status' => $status // Add user status to response data
-        );
-
-        // Send AJAX success response with data
-        wp_send_json_success($response_data);
-
-        // Terminate AJAX handler
-        wp_die();
-    }
-
-    // Function to get user status and its class
-    public function get_chat_user_status() {
-        // Get the user's status from user meta
-        $user_status = get_user_meta(get_current_user_id(), 'jv_chat_user_status', true);
-        // Set default values
-        $class = 'btn-danger'; // Default class
-        $text = __('Status', 'text-domain'); // Default text
-        // Check user status and set class and text accordingly
-        switch ($user_status) {
-            case 'online':
-                $class = 'chat-user-status-online'; // Online
-                $text = __('Online', 'text-domain'); // Online
-                break;
-            case 'busy':
-                $class = 'chat-user-status-busy'; // Busy
-                $text = __('Busy', 'text-domain'); // Busy
-                break;
-            case 'away':
-                $class = 'chat-user-status-away'; // Away
-                $text = __('Away', 'text-domain'); // Away
-                break;
-            default:
-                // Default class and text remain unchanged
-                break;
-        }
-        // Return an array containing class and text
-        return array(
-            'class' => $class,
-            'text' => $text
-        );
-    }
-
-
-    // Function to save history record
-    public function save_history($user_id, $action_type, $target_id = null) {
-        global $wpdb;
-        $query = $wpdb->prepare("INSERT INTO wp_javo_history (user_id, action_type, target_id) VALUES (%d, %s, %d)", $user_id, $action_type, $target_id);
-        $wpdb->query($query);
-    }
-
-    public function handle_load_action_history() {
-        check_ajax_referer('chatSecurityNonce', 'nonce');
-
-        global $wpdb;
-        $user_id = get_current_user_id();
-
-        // Modify the query to also join with the wp_users table based on target_id to get the target's display_name
-        $history = $wpdb->get_results($wpdb->prepare(
-            "SELECT h.id, h.user_id, h.action_type, h.target_id, h.created_at, u.display_name AS userDisplayName, tu.display_name AS targetDisplayName 
-            FROM wp_javo_history h
-            INNER JOIN wp_users u ON h.user_id = u.ID
-            LEFT JOIN wp_users tu ON h.target_id = tu.ID
-            WHERE h.user_id = %d 
-            ORDER BY h.created_at DESC",
-            $user_id
-        ), ARRAY_A);
-
-        // Format the created_at field using the convert_format_date method
-        foreach ($history as &$entry) {
-            $entry['created_at'] = $this->convert_format_date($entry['created_at']);
-        }
-
-        if (!empty($history)) {
-            wp_send_json_success($history);
-        } else {
-            wp_send_json_error('No history found.');
-        }
-    }
-
-    /**
-     * Calculates the amount of messages to load to reach a specific message and its position.
-     * Adds detailed error logging for troubleshooting.
-     */
-    function calculate_load_msg_amount_callback() {
-        global $wpdb;
-        check_ajax_referer('chatSecurityNonce', 'nonce');
-
-        $message_id = isset($_POST['message_id']) ? intval($_POST['message_id']) : 0;
-        $receiver_id = isset($_POST['receiver_id']) ? intval($_POST['receiver_id']) : 0;
-        $current_user_id = get_current_user_id();
-
-        if ($message_id <= 0 || $receiver_id <= 0) {
-            wp_send_json_error('Invalid message or receiver ID.');
-            return;
-        }
-
-        // Use the corrected query to calculate the number of messages until the target
-        $messages_until_target_query = $wpdb->prepare("
-            SELECT COUNT(*) FROM {$wpdb->prefix}javo_core_conversations
-            WHERE 
-                ((sender_id = %d AND receiver_id = %d) OR 
-                (sender_id = %d AND receiver_id = %d)) AND
-                id >= %d
-        ", $receiver_id, $current_user_id, $current_user_id, $receiver_id, $message_id);
-
-        $messages_until_target = $wpdb->get_var($messages_until_target_query);
-
-        wp_send_json_success(array('loadMsgAmount' => $messages_until_target));
-    }
-
-
-	/**
-	 * Register the stylesheets for the public-facing side of the site.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_styles() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Javo_Chat_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Javo_Chat_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/javo-chat-public.css', array(), $this->version, 'all' );
-
-	}
-
-
+    
 }
