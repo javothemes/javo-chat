@@ -2148,20 +2148,12 @@ class Javo_Chat_Public {
      */
     public function setup_custom_cron_schedule_for_emails() {
         error_log("setup_custom_cron_schedule_for_emails111!");
-        $create_schedule = false;
-        if(wp_next_scheduled('check_and_send_email_for_unread_messages')) {
-            if(wp_next_scheduled('check_and_send_email_for_unread_messages') < time()) {
-                wp_clear_scheduled_hook('check_and_send_email_for_unread_messages');
-                $create_schedule = true;
-            }
-        }else{
-            $create_schedule = true;
-        }
-        if($create_schedule) {
-            error_log("setup_custom_cron_schedule_for_emails!222");
+        if (!wp_next_scheduled('check_and_send_email_for_unread_messages')) {
+            error_log("Scheduling new event for check_and_send_email_for_unread_messages.");
             wp_schedule_event(time(), 'every_custom_minutes', 'check_and_send_email_for_unread_messages');
         }
     }
+
 
     /**
      * Checks for unread messages and sends email notifications to users if certain conditions are met.
