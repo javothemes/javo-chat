@@ -276,10 +276,12 @@ class Javo_Chat_Admin {
 		// Get selected skin from AJAX request
 		$selected_skin = isset($_POST['skin']) ? sanitize_text_field($_POST['skin']) : '';
 
-		// Get test email address from AJAX request
+		// Get test email address and content from AJAX request
 		$test_email = isset($_POST['test_email']) ? sanitize_email($_POST['test_email']) : '';
+		$title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
+		$content = isset($_POST['content']) ? wp_kses_post($_POST['content']) : '';
 
-		// Check if test email address is valid
+		// Validate email format
 		if (!is_email($test_email)) {
 			wp_send_json_error('Invalid email address.');
 		}
@@ -303,7 +305,7 @@ class Javo_Chat_Admin {
 		}
 
 		// Send test email
-		$subject = 'Test Email';
+		$subject = $title; // Use title as email subject
 		$headers = array(
 			'Content-Type: text/html; charset=UTF-8',
 		);
@@ -316,7 +318,6 @@ class Javo_Chat_Admin {
 			wp_send_json_error('Failed to send test email.');
 		}
 	}
-
 
 	/**
 	 * AJAX callback function to load template content.
