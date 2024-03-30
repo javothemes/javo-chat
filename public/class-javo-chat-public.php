@@ -2223,11 +2223,34 @@ class Javo_Chat_Public {
         // Set email subject
         $subject = 'New Chat Message';
 
-        // Compose email message with customized title
-        $message_body = "$title:\n\n";
-        $message_body .= "From: Admin <" . get_bloginfo('admin_email') . ">\n"; // Set sender as admin
-        $message_body .= "To: $receiver_email\n";
-        $message_body .= "Message: $message";
+        // Get selected skin from options
+        $selected_skin = get_option('javo_chat_selected_skin', 'professional');
+
+    // Load email template based on selected skin
+        $template_path = '';
+        if ($selected_skin === 'professional') {
+            $template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/professional_template.php';
+        } elseif ($selected_skin === 'modern') {
+            $template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/modern_template.php';
+        }
+
+        // Check if template path is valid
+        if (!empty($template_path) && file_exists($template_path)) {
+            // Load template file
+            ob_start();
+            include $template_path;
+            $message_body = ob_get_clean();
+
+            // Replace placeholders in template with actual values
+            $message_body = str_replace('{{title}}', $title, $message_body);
+            $message_body = str_replace('{{message}}', $message, $message_body);
+        } else {
+            // Default template if selected skin template not found
+            $message_body = "$title:\n\n";
+            $message_body .= "From: Admin <" . get_bloginfo('admin_email') . ">\n"; // Set sender as admin
+            $message_body .= "To: $receiver_email\n";
+            $message_body .= "Message: $message";
+        }
 
         // Set email headers
         $headers = array(
@@ -2252,5 +2275,6 @@ class Javo_Chat_Public {
             error_log("Failed to send chat notification email to $receiver_email.");
         }
     }
+
 
 }
