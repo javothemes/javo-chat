@@ -2226,7 +2226,7 @@ class Javo_Chat_Public {
         // Get selected skin from options
         $selected_skin = get_option('javo_chat_selected_skin', 'professional');
 
-    // Load email template based on selected skin
+        // Load email template based on selected skin
         $template_path = '';
         if ($selected_skin === 'professional') {
             $template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/professional_template.php';
@@ -2254,7 +2254,7 @@ class Javo_Chat_Public {
 
         // Set email headers
         $headers = array(
-            'Content-Type: text/plain; charset=UTF-8',
+            'Content-Type: text/html; charset=UTF-8',
             'Reply-To: ' . get_bloginfo('admin_email'), // Set reply-to as admin
         );
 
