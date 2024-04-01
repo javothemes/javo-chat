@@ -95,12 +95,7 @@
             <a href="<?php echo esc_url(home_url('/')); ?>" class="button">Check My Chat Box</a>
             
             <div style="text-align: center; margin: 0px 0;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20 2H4C2.897 2 2 2.897 2 4v12c0 1.103.897 2 2 2h4l4 4 4-4h4c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zm-1.999 13h-3.001L12 18.001 8.999 15H4V4h16v11z"/>
-                    <circle cx="15" cy="10" r="1" />
-                    <circle cx="9" cy="10" r="1" />
-                    <circle cx="12" cy="10" r="1" />
-                </svg>
+                <img src="<?php echo plugin_dir_url(dirname(dirname(__FILE__))) . 'public/images/icon-msg.png'; ?>" width="150" alt="message">
             </div>
 
             <div class="invite-code">The best directory site!  Join us if you have not.</div>
@@ -109,13 +104,13 @@
                 <div class="company-info">Street address<br>Phone number</div>
                 <div class="social-icons">
                     <a href="#" class="social-icon">
-                        <img src="<?php echo plugin_dir_url(dirname(dirname(__FILE__))) . 'public/images/icon-facebook.svg'; ?>" alt="Facebook">
+                        <img src="<?php echo plugin_dir_url(dirname(dirname(__FILE__))) . 'public/images/icon-facebook.png'; ?>" alt="Facebook">
                     </a>
                     <a href="#" class="social-icon">
-                        <img src="<?php echo plugin_dir_url(dirname(dirname(__FILE__))) . 'public/images/icon-twitter.svg'; ?>" alt="Twitter">
+                        <img src="<?php echo plugin_dir_url(dirname(dirname(__FILE__))) . 'public/images/icon-twitterx.png'; ?>" alt="Twitter">
                     </a>
                     <a href="#" class="social-icon">
-                        <img src="<?php echo plugin_dir_url(dirname(dirname(__FILE__))) . 'public/images/icon-instagram.svg'; ?>" alt="Instagram">
+                        <img src="<?php echo plugin_dir_url(dirname(dirname(__FILE__))) . 'public/images/icon-instagram.png'; ?>" alt="Instagram">
                     </a>
                 </div>
                 <div>
