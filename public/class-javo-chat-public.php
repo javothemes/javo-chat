@@ -2232,7 +2232,9 @@ class Javo_Chat_Public {
             $template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/professional_template.php';
         } elseif ($selected_skin === 'modern') {
             $template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/modern_template.php';
-        }
+        } elseif ($selected_skin === 'simple') {
+			$template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/simple_template.php';
+		}
 
         // Check if template path is valid
         if (!empty($template_path) && file_exists($template_path)) {

@@ -232,6 +232,7 @@ class Javo_Chat_Admin {
 			<select id="javo_chat_selected_skin" name="javo_chat_selected_skin">
 				<option value="professional" <?php selected($selected_skin, 'professional'); ?>>Professional</option>
 				<option value="modern" <?php selected($selected_skin, 'modern'); ?>>Modern</option>
+				<option value="simple" <?php selected($selected_skin, 'simple'); ?>>Simple</option>
 				<!-- Add more skin options as needed -->
 			</select>
 		</p>
@@ -292,6 +293,8 @@ class Javo_Chat_Admin {
 			$template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/professional_template.php';
 		} elseif ($selected_skin === 'modern') {
 			$template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/modern_template.php';
+		} elseif ($selected_skin === 'simple') {
+			$template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/simple_template.php';
 		}
 
 		// Load template content
@@ -339,6 +342,8 @@ class Javo_Chat_Admin {
 			$template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/professional_template.php';
 		} elseif ($selected_skin === 'modern') {
 			$template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/modern_template.php';
+		} elseif ($selected_skin === 'simple') {
+			$template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/simple_template.php';
 		}
 
 		// Load template content
