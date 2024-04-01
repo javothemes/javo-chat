@@ -114,7 +114,7 @@
                     </a>
                 </div>
                 <div>
-                    <a href="<?php echo esc_url(home_url('/')); ?>">Check out our site</a>
+                    <a href="<?php echo esc_url(home_url('/')); ?>">Visit site</a>
                 </div>
 
             </div>
