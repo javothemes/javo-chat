@@ -237,11 +237,11 @@ class Javo_Chat_Public {
 
         // Get the data sent in the request
         $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
-        error_log('email'. $email);
+        // error_log('email'. $email);
 
         // Check if the email exists in user data
         $user = get_user_by('email', $email);
-        error_log('User found: ' . var_export($user, true)); // Add this line to log the user data
+        // error_log('User found: ' . var_export($user, true)); // Add this line to log the user data
 
         if ($user) {
             // Prompt to log in for chatting
@@ -538,13 +538,9 @@ class Javo_Chat_Public {
             $user_settings = $this->get_user_chat_settings();
             if ($user_settings) {
                 // Settings are available
-                $email_notif_unread = isset($user_settings['email_notif_unread']) ? $user_settings['email_notif_unread'] : 'off';
-                $email_notif_new_chat = isset($user_settings['email_notif_new_chat']) ? $user_settings['email_notif_new_chat'] : 'off';
-                $email_notif_offline_chat = isset($user_settings['email_notif_offline_chat']) ? $user_settings['email_notif_offline_chat'] : 'off';
-                $new_chat_time = isset($user_settings['new_chat_time']) ? $user_settings['new_chat_time'] : '0';
-                $sound_notification = isset($user_settings['sound_notification']) ? $user_settings['sound_notification'] : 'off';
-                $message_preview = isset($user_settings['message_preview']) ? $user_settings['message_preview'] : 'off';
-                $auto_reply = isset($user_settings['auto_reply']) ? $user_settings['auto_reply'] : 'off';
+                $email_notif_unread = isset($user_settings['email_notif_unread']) ? $user_settings['email_notif_unread'] : 'on';
+                $email_notif_new_chat = isset($user_settings['email_notif_new_chat']) ? $user_settings['email_notif_new_chat'] : 'on';
+                $email_notif_offline_chat = isset($user_settings['email_notif_offline_chat']) ? $user_settings['email_notif_offline_chat'] : 'on';
                 $chat_theme = isset($user_settings['chat_theme']) ? $user_settings['chat_theme'] : 'Default';
                 $chat_owner_notice = isset($user_settings['chat_owner_notice']) ? $user_settings['chat_owner_notice'] : '';
                 $greeting_message = isset($user_settings['greeting_message']) ? $user_settings['greeting_message'] : '';
@@ -558,41 +554,48 @@ class Javo_Chat_Public {
                 <div id="chat-settings" class="settings-container vstack gap-2">
                     <h4><?php esc_html_e('Chat Settings', 'your-text-domain'); ?></h4>
 
-                    <!-- Avatar Change -->
+                     <!-- Avatar Change -->
                     <div class="setting-item hstack gap-3">
                         <label class="form-check-label" for="change-avatar"><?php esc_html_e('Change Avatar', 'your-text-domain'); ?></label><button id="change-avatar" class="btn btn-primary"><?php esc_html_e('Change', 'your-text-domain'); ?></button>
+                        <a tabindex="0" class="view-all-users" role="button" data-bs-toggle="tooltip" data-bs-placement="right" title="<?php echo esc_attr__('Click to select a new avatar.', 'your-text-domain'); ?>">
+                            <i class="feather feather-alert-circle fs-6"></i>
+                        </a>
                     </div>
                     <input type="hidden" id="avatar-attachment-id">
 
                     <!-- Email notification settings for new chat starts using Bootstrap Switch -->
-                    <div class="setting-item form-check form-switch d-flex align-items-center gap-3">
-                        <input class="form-check-input" type="checkbox" id="email-notif-new-chat" <?php echo $email_notif_new_chat === 'on' ? 'checked' : ''; ?>>
+                    <div class="setting-item form-check form-switch hstack gap-3">
+                        <input class="form-check-input" type="checkbox" id="email-notif-new-chat" name="email-notif-new-chat" <?php checked($email_notif_new_chat, 'on'); ?>>
                         <label class="form-check-label" for="email-notif-new-chat"><?php esc_html_e('Email notifications for new chat starts', 'your-text-domain'); ?></label>
+                        <a tabindex="0" class="view-all-users" role="button" data-bs-toggle="tooltip" data-bs-placement="right" title="<?php echo esc_attr__('Receive emails for each new chat start.', 'your-text-domain'); ?>">
+                            <i class="feather feather-alert-circle fs-6"></i>
+                        </a>
                     </div>
                     <!-- OffLine -->
-                    <div class="setting-item form-check form-switch d-flex align-items-center gap-3">
-                        <input class="form-check-input" type="checkbox" id="email-notif-offline-chat" <?php echo $email_notif_offline_chat === 'on' ? 'checked' : ''; ?>>
+                    <div class="setting-item form-check form-switch hstack gap-3">
+                        <input class="form-check-input" type="checkbox" id="email-notif-offline-chat" name="email-notif-offline-chat" <?php checked($email_notif_offline_chat, 'on'); ?>>
                         <label class="form-check-label" for="email-notif-offline-chat"><?php esc_html_e('Email notifications for new chat when you are offline', 'your-text-domain'); ?></label>
+                        <a tabindex="0" class="view-all-users" role="button" data-bs-toggle="tooltip" data-bs-placement="right" title="<?php echo esc_attr__('Get emailed for chat messages when offline.', 'your-text-domain'); ?>">
+                            <i class="feather feather-alert-circle fs-6"></i>
+                        </a>
                     </div>
 
                     <!-- Email notification settings for unread messages -->
-                    <div class="setting-item hstack gap-3">
-                        <label for="email-notif-unread" class="w-100"><?php esc_html_e('Unread Notification:', 'your-text-domain'); ?></label>
-                        <select id="email-notif-unread" class="form-select">
-                            <option value="off" <?php if ($email_notif_unread == 'off') echo 'selected'; ?>><?php esc_html_e('Off', 'your-text-domain'); ?></option>
-                            <option value="24h" <?php if ($email_notif_unread == '24h') echo 'selected'; ?>><?php esc_html_e('After 24 hours', 'your-text-domain'); ?></option>
-                            <option value="48h" <?php if ($email_notif_unread == '48h') echo 'selected'; ?>><?php esc_html_e('After 48 hours', 'your-text-domain'); ?></option>
-                        </select>
-                    </div>
-
-                    <!-- Sound notification -->
-                    <div class="setting-item form-check form-switch d-flex align-items-center gap-3">
-                        <input class="form-check-input" type="checkbox" id="sound-notification" <?php echo $sound_notification === 'on' ? 'checked' : ''; ?>>
-                        <label class="form-check-label" for="sound-notification"><?php esc_html_e('Sound Notification', 'your-text-domain'); ?></label>
+                    <div class="setting-item form-check form-switch hstack gap-3">
+                        <input class="form-check-input" type="checkbox" id="email-notif-unread" name="email-notif-unread" <?php checked($email_notif_unread, 'on'); ?>>
+                        <label class="form-check-label" for="email-notif-unread"><?php esc_html_e('Unread Notification', 'your-text-domain'); ?></label>
+                        <a tabindex="0" class="view-all-users" role="button" data-bs-toggle="tooltip" data-bs-placement="right" title="<?php echo esc_attr__('Alerts for unread messages after specified intervals.', 'your-text-domain'); ?>">
+                            <i class="feather feather-alert-circle fs-6"></i>
+                        </a>
                     </div>
 
                     <div class="setting-item hstack gap-3">
-                        <div for="chat-theme" class="w-100 me-auto"><?php esc_html_e('Chat Theme', 'your-text-domain'); ?></div>
+                        <div for="chat-theme" class="w-100 me-auto">
+                            <?php esc_html_e('Chat Theme', 'your-text-domain'); ?>
+                            <a tabindex="0" class="view-all-users" role="button" data-bs-toggle="tooltip" data-bs-placement="right" title="<?php echo esc_attr__('Choose your preferred chat theme.', 'your-text-domain'); ?>">
+                                <i class="feather feather-alert-circle fs-6"></i>
+                            </a>
+                        </div>
                         <select id="chat-theme" class="form-select">
                             <option <?php echo ($chat_theme == 'Default') ? 'selected' : ''; ?>>
                             <?php esc_html_e('Default', 'your-text-domain'); ?>
@@ -610,14 +613,19 @@ class Javo_Chat_Public {
                         <textarea class="form-control" placeholder="Leave a comment here" id="greeting-message" maxlength="50"><?php echo esc_html($greeting_message); ?></textarea>
                         <label for="greeting-message"><?php esc_html_e('Greeting message for new chats', 'your-text-domain'); ?></label>
                         <div id="greeting-message-count" class="character-count position-absolute top-5 end-0 me-3 fs-7">0/50</div>
+                        <div class="italic-text fs-6 ms-1">
+                            <i><?php esc_html_e('Set a greeting message to show to new chat participants. E.g., Welcome to my chat.', 'your-text-domain'); ?></i>
+                        </div>
                     </div>
 
                     <div class="form-floating floating-outline setting-item mt-3 chat-owner-notice-wrap">
                         <textarea class="form-control" placeholder="Leave a comment here" id="chat-owner-notice" maxlength="50"><?php echo esc_html($chat_owner_notice); ?></textarea>
                         <label for="chat-owner-notice"><?php esc_html_e('Sticky Notice for Chat Owner', 'your-text-domain'); ?></label>
                         <div id="chat-owner-notice-count" class="character-count position-absolute top-5 end-0 me-3 fs-7">0/50</div>
-                    </div>
-
+                        <div class="italic-text fs-6 ms-1">
+                            <i><?php esc_html_e('Set a fixed notification for the chat owner. E.g., We are off for this month.', 'your-text-domain'); ?></i>
+                        </div>
+                    </div>                  
                 </div>
                 <button id="back-to-chat" class="btn btn-secondary mt-3"><?php esc_html_e('Back to Chat', 'your-text-domain'); ?></button>
             </div>
@@ -940,8 +948,8 @@ class Javo_Chat_Public {
         $sender_id = $_POST['sender_id'];
         $receiver_id = $_POST['receiver_id'];
 
-        error_log('sender_id: '. $sender_id);
-        error_log('receiver_id: '. $receiver_id);
+        // error_log('sender_id: '. $sender_id);
+        // error_log('receiver_id: '. $receiver_id);
 
         // Check if required parameters are present
         if (isset($_POST['sender_id']) && isset($_POST['receiver_id'])) {
@@ -1750,14 +1758,10 @@ class Javo_Chat_Public {
 
         // Gather selected options into an array
         $user_settings = array(
-            'email_notif_unread' => isset($_POST['emailNotifUnread']) ? sanitize_text_field($_POST['emailNotifUnread']) : '',
+            'email_notif_unread' => isset($_POST['emailNotifUnread']) ? $_POST['emailNotifUnread'] : '',
             'email_notif_new_chat' => isset($_POST['emailNotifNewChat']) ? $_POST['emailNotifNewChat'] : '',
             'email_notif_offline_chat' => isset($_POST['emailNotifOfflineChat']) ? $_POST['emailNotifOfflineChat'] : '',
-            'sound_notification' => isset($_POST['soundNotification']) ? $_POST['soundNotification'] : '',
-            'message_preview' => isset($_POST['messagePreview']) ? $_POST['messagePreview'] : '',
-            'auto_reply' => isset($_POST['autoReply']) ? $_POST['autoReply'] : '',
             'chat_theme' => isset($_POST['chatTheme']) ? sanitize_text_field($_POST['chatTheme']) : '',
-            //'new_chat_time' => isset($_POST['newChatTime']) ? sanitize_text_field($_POST['newChatTime']) : '',
             'chat_owner_notice' => isset($_POST['chatOwnerNotice']) ? sanitize_textarea_field($_POST['chatOwnerNotice']) : '',
             'greeting_message' => isset($_POST['greetingMessage']) ? sanitize_textarea_field($_POST['greetingMessage']) : '',
         );
@@ -2031,9 +2035,9 @@ class Javo_Chat_Public {
 
         // Fetch user chat settings
         $user_settings = $this->get_user_chat_settings($receiver_id); // Assuming this function exists and it fetches user-specific settings
-        $email_notif_unread = $user_settings['email_notif_unread'] ?? 'off';
-        $email_notif_new_chat = $user_settings['email_notif_new_chat'] ?? 'off';
-        $email_notif_offline_chat = $user_settings['email_notif_offline_chat'] ?? 'off';
+        $email_notif_unread = $user_settings['email_notif_unread'] ?? 'on';
+        $email_notif_new_chat = $user_settings['email_notif_new_chat'] ?? 'on';
+        $email_notif_offline_chat = $user_settings['email_notif_offline_chat'] ?? 'on';
 
         // Time frame to limit email notifications
         $email_limit_time_frame = 3600; // 1 hour in seconds
@@ -2147,9 +2151,9 @@ class Javo_Chat_Public {
      * It's designed to allow more frequent checks and email notifications for unread messages.
      */
     public function setup_custom_cron_schedule_for_emails() {
-        error_log("setup_custom_cron_schedule_for_emails111!");
+        //error_log("setup_custom_cron_schedule_for_emails111!");
         if (!wp_next_scheduled('check_and_send_email_for_unread_messages')) {
-            error_log("Scheduling new event for check_and_send_email_for_unread_messages.");
+            //error_log("Scheduling new event for check_and_send_email_for_unread_messages.");
             wp_schedule_event(time(), 'every_custom_minutes', 'check_and_send_email_for_unread_messages');
         }
     }
@@ -2161,15 +2165,14 @@ class Javo_Chat_Public {
      * and if they have unread messages. If a user is offline and has unread messages, an email notification is sent.
      */
     public function check_and_send_email_for_unread_messages() {
-        error_log("check_and_send_email_for_unread_messages!");
+        //error_log("check_and_send_email_for_unread_messages!");
         $users = get_users();
         foreach ($users as $user) {
             $user_settings = $this->get_user_chat_settings($user->ID);
             // Updated logic to check 'email_notif_unread' setting
-            // Now checks if the setting is not 'off' and not null
-            $email_notif_unread = $user_settings['email_notif_unread'] ?? 'off';
-            //if ($email_notif_unread !== 'off' && $email_notif_unread !== null) {
-                error_log("check_and_send_email_for_unread_messages!444");
+            $email_notif_unread = isset($user_settings['email_notif_unread']) && $user_settings['email_notif_unread'] !== '' ? $user_settings['email_notif_unread'] : 'on';
+            if ($email_notif_unread !== 'off' && $email_notif_unread !== null) {
+                //error_log("check_and_send_email_for_unread_messages!444");
                 $unread_messages_count = $this->get_unread_messages_count($user->ID);
 
                 $last_activity = get_user_meta($user->ID, 'jv_last_activity', true);
@@ -2183,7 +2186,7 @@ class Javo_Chat_Public {
                     $admin_id = 1;
                     $this->send_chat_notification_email($admin_id, $user->ID, $notification_message, $notification_title);
                 }
-            //}
+            }
         }
     }
 
@@ -2198,7 +2201,7 @@ class Javo_Chat_Public {
     function add_custom_cron_interval($schedules) {
         // Get cron interval from the plugin settings, default to 1440 minutes (24 hours) if not set
         $interval_minutes = get_option('javo_chat_cron_interval', 1440); // Default is 24 hours
-        error_log('Cron Interval: ' . get_option('javo_chat_cron_interval', 1440));
+        //error_log('Cron Interval: ' . get_option('javo_chat_cron_interval', 1440));
         $interval = $interval_minutes * 60; // Convert minutes to seconds
         
         $schedules['every_custom_minutes'] = array(
@@ -2245,7 +2248,7 @@ class Javo_Chat_Public {
 
             // Replace placeholders in template with actual values
             $message_body = str_replace('{{title}}', $title, $message_body);
-            $message_body = str_replace('{{message}}', $message, $message_body);
+            $message_body = str_replace('{{content}}', $message, $message_body);
         } else {
             // Default template if selected skin template not found
             $message_body = "$title:\n\n";

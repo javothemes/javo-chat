@@ -762,7 +762,7 @@ Move to the message ( when you click the message : search or saved )
                     <a href="#" class="block-user-btn" data-receiver-id="${receiverId}">
                         <i class="feather feather-slash fs-5 ${blockedUser ? 'text-danger' : ''}"></i>
                     </a>
-                    <div class="profile-opener mt-1">
+                    <div class="profile-opener mt-1 d-none">
                         <a href="#" data-bs-target="#profile-sidebar" data-bs-toggle="collapse" class="border rounded-3 p-1 d-flex align-items-center">
                             <i class="feather feather-chevron-right"></i>
                             <i class="feather feather-chevron-left"></i>
@@ -1869,12 +1869,9 @@ Move to the message ( when you click the message : search or saved )
 			// Function to save chat settings and chat owner message to user meta using AJAX
 			function saveChatSettings() {
 				// Gather selected options
-				var emailNotifUnread = $('#email-notif-unread').val();
+				var emailNotifUnread = $('#email-notif-unread').prop('checked');
 				var emailNotifNewChat = $('#email-notif-new-chat').prop('checked');
 				var emailNotifOfflineChat = $('#email-notif-offline-chat').prop('checked');
-				var soundNotification = $('#sound-notification').prop('checked');
-				var messagePreview = $('#message-preview').prop('checked');
-				var autoReply = $('#auto-reply').prop('checked');
 				var chatTheme = $('#chat-theme').val();
 				var newChatTime = $('#new-chat-time').val();
 				var avatarAttachmentId = $('#avatar-attachment-id').val(); // Get the selected avatar attachment ID
@@ -1888,12 +1885,9 @@ Move to the message ( when you click the message : search or saved )
 					data: {
 						action: 'save_chat_settings', // Action to perform in the WordPress backend
 						nonce: chatSettings.nonce, // Security nonce
-						emailNotifUnread: emailNotifUnread,
+						emailNotifUnread: emailNotifUnread ? 'on' : 'off',
 						emailNotifNewChat: emailNotifNewChat ? 'on' : 'off',
 						emailNotifOfflineChat: emailNotifOfflineChat ? 'on' : 'off',
-						soundNotification: soundNotification ? 'on' : 'off',
-						messagePreview: messagePreview ? 'on' : 'off',
-						autoReply: autoReply ? 'on' : 'off',
 						chatTheme: chatTheme,
 						newChatTime: newChatTime,
 						avatarAttachmentId: avatarAttachmentId,
