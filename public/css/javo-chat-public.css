@@ -155,9 +155,19 @@ Chat Messages Styles:
     background-color: var(--background-color);
 }
 
-.chat-wrap .dropdown-menu {
-    --bs-dropdown-bg: var(--primary-bg-color);
-    --bs-dropdown-color: var(var(--bs-border-color));
+.chat-wrap {
+
+    #message-input {
+        background-color: #fff;
+    }
+}
+
+.chat-wrap {
+
+    .dropdown-menu {
+        --bs-dropdown-bg: var(--primary-bg-color);
+        --bs-dropdown-color: var(var(--bs-border-color));
+    }
 }
 
 #chat-user-list {
