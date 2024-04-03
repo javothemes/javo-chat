@@ -2258,9 +2258,10 @@ Move to the message ( when you click the message : search or saved )
 				// Create a new window for printing
 				var printWindow = window.open('', '_blank', 'width=600,height=400'); // Specify popup window size
 				printWindow.document.write('<html><head><title>Print Chat History</title>');
-				printWindow.document.write('<link rel="stylesheet" type="text/css" href="http://localhost/wp-content/plugins/javo-points/public/css/javo-interface-inner.css?ver=1.0.0.11">'); // Load external stylesheet
-				printWindow.document.write('<link rel="stylesheet" id="jvcore-style-css" href="http://localhost/wp-content/plugins/javo-core/dist/css/style.css?ver=6.4.3" type="text/css" media="all">'); // Load external stylesheet
-				printWindow.document.write('<link rel="stylesheet" id="bootstrap-css" href="http://localhost/wp-content/themes/javo-theme/assets/dist/css/bootstrap.css?ver=5.2.1" type="text/css" media="all">'); // Load external stylesheet
+				// Use window.location.origin to dynamically get the current domain
+				printWindow.document.write('<link rel="stylesheet" type="text/css" href="' + window.location.origin + '/wp-content/plugins/javo-points/public/css/javo-interface-inner.css?ver=1.0.0.11">'); // Load external stylesheet
+				printWindow.document.write('<link rel="stylesheet" id="jvcore-style-css" href="' + window.location.origin + '/wp-content/plugins/javo-core/dist/css/style.css?ver=6.4.3" type="text/css" media="all">'); // Load external stylesheet
+				printWindow.document.write('<link rel="stylesheet" id="bootstrap-css" href="' + window.location.origin + '/wp-content/themes/javo-theme/assets/dist/css/bootstrap.css?ver=5.2.1" type="text/css" media="all">'); // Load external stylesheet
 				printWindow.document.write('</head><body>');
 				printWindow.document.write(chatHistory);
 				printWindow.document.write('</body></html>');
