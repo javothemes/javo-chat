@@ -1503,7 +1503,10 @@ class Javo_Chat_Public {
         foreach ($user_results as $user) {
             $user->online_status = $this->is_user_online($user->user_id) ? 'Online' : 'Offline';
             $user->formatted_last_activity = $this->convert_format_date($user->jv_last_activity);
-            $user->avatar_url = !empty($user->avatar_url) ? $user->avatar_url : 'path/to/default-avatar.jpg';
+            if (is_numeric($user->avatar_url)) {
+                $user->avatar_url = wp_get_attachment_url($user->avatar_url);
+            }
+            $user->avatar_url = !empty($user->avatar_url) ? $user->avatar_url : plugin_dir_url(__DIR__) . 'public/images/default-avatar.jpeg';
         }
 
         // Search for messages (tab-message), including the sender name and limiting message content to 10 characters

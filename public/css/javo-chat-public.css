@@ -343,7 +343,7 @@ Chat Messages Styles:
 
 .chat-list,
 .chat-side {
-    /* background-color: var(--jv-bg-secondary); */
+    background-color: var(--jv-bg-secondary);
 }
 
 .input-group-append {
