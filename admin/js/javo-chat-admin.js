@@ -19,7 +19,7 @@
 			},
 			success: function (response) {
 				$('#preview_content').html(response);
-				$('#previewModal').modal('show'); // Open modal
+				$('#previewModal').modal('show'); // Open modal after AJAX request
 			}
 		});
 	});
@@ -32,6 +32,7 @@
 
 	// Function to handle test email sending
 	$('#test_send_button').on('click', function () {
+		console.log('ok');
 		var testEmail = $('#test_email').val();
 		var isValidEmail = validateEmail(testEmail);
 		if (!isValidEmail) {
