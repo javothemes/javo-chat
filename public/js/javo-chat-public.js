@@ -79,7 +79,7 @@ Move to the message ( when you click the message : search or saved )
 			// console.log(chatSettings.ajax_url);
 			// console.log(chatSettings.nonce);
 			// console.log('mode=' + jv_chat_mode);
-			// console.log(chatSettings.is_logged_in);
+			console.log('chat login : ', chatSettings.is_logged_in);
 			// console.log(chatSettings.chat_user_id);
 
 			// Check if it's single mode and the user is not logged in
@@ -88,7 +88,7 @@ Move to the message ( when you click the message : search or saved )
 				// receiverId = 1; // Assuming 1 is the receiverId for the admin or target chat. It's for temp.
 				receiverId = $wrap.data('jv-chat-receiver-id');
 
-				console.log('single-senderId : ' + senderId);
+				// console.log('single-senderId : ' + senderId);
 
 				if (getCookie('visitor_email') || chatSettings.is_logged_in === 'true') {
 					$('#chat-interface').show();
@@ -347,9 +347,9 @@ Move to the message ( when you click the message : search or saved )
 
 			// Function to retrieve messages
 			function getChatMessages(msgAmount, callback) {
-				console.log("------ Retrieving Chat Messages ------");
-				console.log("Sender ID: " + senderId);
-				console.log("Receiver ID: " + receiverId);
+				// console.log("------ Retrieving Chat Messages ------");
+				// console.log("Sender ID: " + senderId);
+				// console.log("Receiver ID: " + receiverId);
 				//console.log("Is First Page Load: " + isFirstPageLoad);
 				//console.log("Has User Attempted To Load More: " + hasUserAttemptedToLoadMore);
 
@@ -741,36 +741,51 @@ Move to the message ( when you click the message : search or saved )
 			};
 
 			function updateParticipantPanel(receiverId, displayName, avatarUrl, unreadMessagesCount, userStatus, userLastActive, favoriteUser, blockedUser) {
-				$('#participant-panel').html(`
-                <div class="profile-info d-flex gap-3">
-                    <div class="avatar">
-                        <img src="${avatarUrl}" class="avatar rounded-circle" alt="${displayName}">
-                    </div>
-                    <div class="info">
-                        <span class="name fw-semibold text-capitalize">${displayName} ( #${receiverId} )</span>
-                        <div class="d-flex gap-3">
-                            <span class="user-status fs-6">${userStatus}</span>
-                            <span class="user-last-active fs-6">${userLastActive}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="functionality-buttons d-flex align-items-center gap-2">
-                    <a href="#" class="favorite-btn" data-receiver-id="${receiverId}">
-                        <i class="feather feather-heart fs-5 ${favoriteUser ? 'text-danger' : ''}"></i>
-                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                    </a>
-                    <a href="#" class="block-user-btn" data-receiver-id="${receiverId}">
-                        <i class="feather feather-slash fs-5 ${blockedUser ? 'text-danger' : ''}"></i>
-                    </a>
-                    <div class="profile-opener mt-1 d-none">
-                        <a href="#" data-bs-target="#profile-sidebar" data-bs-toggle="collapse" class="border rounded-3 p-1 d-flex align-items-center">
-                            <i class="feather feather-chevron-right"></i>
-                            <i class="feather feather-chevron-left"></i>
-                        </a>
-                    </div>
-                </div>
-            `);
+				console.log('chat login : ', chatSettings.is_logged_in);
+
+				// Start the template string for the participant panel
+				let participantPanelHtml = `
+					<div class="profile-info d-flex gap-3">
+						<div class="avatar">
+							<img src="${avatarUrl}" class="avatar rounded-circle" alt="${displayName}">
+						</div>
+						<div class="info">
+							<span class="name fw-semibold text-capitalize">${displayName} ( #${receiverId} )</span>
+							<div class="d-flex gap-3">
+								<span class="user-status fs-6">${userStatus}</span>
+								<span class="user-last-active fs-6">${userLastActive}</span>
+							</div>
+						</div>
+					</div>`;
+
+				// Append the functionality-buttons div only if chatSettings.is_logged_in is true
+				if (chatSettings.is_logged_in === 'false') {
+					// Hide the entire functionality buttons section
+					// Use one of them
+					$('.functionality-buttons').hide();
+				} else {
+					participantPanelHtml += `
+					<div class="111 functionality-buttons d-flex align-items-center gap-2">
+						<a href="#" class="favorite-btn" data-receiver-id="${receiverId}">
+							<i class="feather feather-heart fs-5 ${favoriteUser ? 'text-danger' : ''}"></i>
+							<span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+						</a>
+						<a href="#" class="block-user-btn" data-receiver-id="${receiverId}">
+							<i class="feather feather-slash fs-5 ${blockedUser ? 'text-danger' : ''}"></i>
+						</a>
+						<div class="profile-opener mt-1 d-none">
+							<a href="#" data-bs-target="#profile-sidebar" data-bs-toggle="collapse" class="border rounded-3 p-1 d-flex align-items-center">
+								<i class="feather feather-chevron-right"></i>
+								<i class="feather feather-chevron-left"></i>
+							</a>
+						</div>
+					</div>`;
+				}
+
+				// Set the HTML content of the participant-panel
+				$('#participant-panel').html(participantPanelHtml);
 			}
+
 
 			// Function to update the participant panel with selected conversation partner's information
 			function updateParticipantDetailPanel(receiverId, displayName, avatarUrl, unreadMessagesCount, userStatus, userLastActive, favoriteUser, blockedUser) {

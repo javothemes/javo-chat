@@ -710,7 +710,8 @@ class Javo_Chat_Public {
             if (!is_numeric($user_id) || empty($user_id) || !get_user_by('id', $user_id)) {
 
             // If user ID is invalid or not found, return URL of a default avatar or placeholder
-            return 'http://localhost/wp-content/uploads/2023/12/Pet_Background1-1-1.jpg';
+            return plugin_dir_url(__DIR__) . 'public/images/default-avatar.jpeg';
+
         }
 
         // Get the avatar attachment ID from user meta
