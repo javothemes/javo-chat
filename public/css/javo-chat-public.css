@@ -341,11 +341,6 @@ Chat Messages Styles:
     /* Display none */
 }
 
-.chat-list,
-.chat-side {
-    background-color: var(--jv-bg-secondary);
-}
-
 .input-group-append {
     position: absolute;
     top: 50%;

@@ -710,7 +710,7 @@ class Javo_Chat_Public {
             if (!is_numeric($user_id) || empty($user_id) || !get_user_by('id', $user_id)) {
 
             // If user ID is invalid or not found, return URL of a default avatar or placeholder
-            return plugin_dir_url(__DIR__) . 'public/images/default-avatar.jpeg';
+            return plugin_dir_url(__DIR__) . 'public/images/default-avatar.png';
 
         }
 
@@ -1506,7 +1506,7 @@ class Javo_Chat_Public {
             if (is_numeric($user->avatar_url)) {
                 $user->avatar_url = wp_get_attachment_url($user->avatar_url);
             }
-            $user->avatar_url = !empty($user->avatar_url) ? $user->avatar_url : plugin_dir_url(__DIR__) . 'public/images/default-avatar.jpeg';
+            $user->avatar_url = !empty($user->avatar_url) ? $user->avatar_url : plugin_dir_url(__DIR__) . 'public/images/default-avatar.png';
         }
 
         // Search for messages (tab-message), including the sender name and limiting message content to 10 characters
