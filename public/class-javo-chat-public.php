@@ -20,7 +20,7 @@
  * @subpackage Javo_Chat/public
  * @author     Javo <javothemes@gmail.com>
  */
-class Javo_Chat_Public
+class Javo_Chat_Public extends Javo_Chat_Base
 {
 
     /**
@@ -158,7 +158,7 @@ class Javo_Chat_Public
 
         // Email Cron
         add_action('wp', array($this, 'setup_custom_cron_schedule_for_emails'));
-        add_action('check_and_send_email_for_unread_messages', array($this, 'check_and_send_email_for_unread_messages'));
+        add_action('javo_chat_send_email_for_unread_messages', array($this, 'javo_chat_send_email_for_unread_messages'));
         add_filter('cron_schedules', array($this, 'add_custom_cron_interval'));
 
         // Get Message Position - Load msg amount
@@ -1426,6 +1426,7 @@ class Javo_Chat_Public
                 'unread',
                 $receiver_id
             );
+            // error_log('unread msg count query : ' . $query);
         }
 
         $unread_count = $wpdb->get_var($query);
@@ -2218,35 +2219,36 @@ class Javo_Chat_Public
 
     /**
      * Sets up a custom cron schedule for email notifications.
-     * This function ensures the 'check_and_send_email_for_unread_messages' action is scheduled to run every five minutes.
+     * This function ensures the 'javo_chat_send_email_for_unread_messages' action is scheduled to run every five minutes.
      * It's designed to allow more frequent checks and email notifications for unread messages.
      */
     public function setup_custom_cron_schedule_for_emails()
     {
         //error_log("setup_custom_cron_schedule_for_emails111!");
-        if (!wp_next_scheduled('check_and_send_email_for_unread_messages')) {
-            //error_log("Scheduling new event for check_and_send_email_for_unread_messages.");
-            wp_schedule_event(time(), 'every_custom_minutes', 'check_and_send_email_for_unread_messages');
+        if (!wp_next_scheduled('javo_chat_send_email_for_unread_messages')) {
+            //error_log("Scheduling new event for javo_chat_send_email_for_unread_messages.");
+            wp_schedule_event(time(), 'every_custom_minutes', 'javo_chat_send_email_for_unread_messages');
         }
     }
-
 
     /**
      * Checks for unread messages and sends email notifications to users if certain conditions are met.
      * This function iterates over all users, checks if they have enabled email notifications for unread messages,
      * and if they have unread messages. If a user is offline and has unread messages, an email notification is sent.
      */
-    public function check_and_send_email_for_unread_messages()
+    public function javo_chat_send_email_for_unread_messages()
     {
-        //error_log("check_and_send_email_for_unread_messages!");
+        //error_log("javo_chat_send_email_for_unread_messages!");
         $users = get_users();
         foreach ($users as $user) {
             $user_settings = $this->get_user_chat_settings($user->ID);
             // Updated logic to check 'email_notif_unread' setting
             $email_notif_unread = isset($user_settings['email_notif_unread']) && $user_settings['email_notif_unread'] !== '' ? $user_settings['email_notif_unread'] : 'on';
             if ($email_notif_unread !== 'off' && $email_notif_unread !== null) {
-                //error_log("check_and_send_email_for_unread_messages!444");
+                //error_log("javo_chat_send_email_for_unread_messages!444");
                 $unread_messages_count = $this->get_unread_messages_count($user->ID);
+                // Update user meta with unread message count
+                update_user_meta($user->ID, 'jv_chat_unread_messages_count', $unread_messages_count);
 
                 $last_activity = get_user_meta($user->ID, 'jv_last_activity', true);
                 $last_activity_time = strtotime($last_activity);
@@ -2257,6 +2259,7 @@ class Javo_Chat_Public
                     $notification_message = sprintf("You have %d unread message(s) waiting for you. Please check your chat.", $unread_messages_count);
 
                     $admin_id = 1;
+                    error_log('unread msg count(' . $user->ID . ') : ' . $unread_messages_count);
                     $this->send_chat_notification_email($admin_id, $user->ID, $notification_message, $notification_title);
                 }
             }
@@ -2303,76 +2306,79 @@ class Javo_Chat_Public
 
         // Get selected option (skin or template) and email template ID from options
         $settings = get_option('javo_chat_admin_settings', array());
-        $selected_option = $settings['skin_or_template'] ?? 'skin';  // Correct key to 'skin_or_template'
+        $selected_option = $settings['skin_or_template'] ?? 'skin';
         $template_id = $settings['email_template_id'] ?? 0;
 
-        // Log selected option and template ID for debugging
-        error_log('Selected Option: ' . $selected_option);
-        error_log('Selected Template ID: ' . $template_id);
+        // Prepare the email body content
+        $message_body = $this->prepare_email_content($selected_option, $template_id, $title, $message, $receiver_id);
 
-        // Load email template based on selected option
-        if ($selected_option === 'skin') {
-            // Handling skin option
-            $selected_skin = $settings['email_skin'] ?? 'professional';
+        // Process all shortcodes in the message body including [permalink], [chat_username], [dashboard_url], etc.
+        $message_body = do_shortcode($message_body);
 
-            // Define template path based on selected skin
-            $template_path = '';
-            if ($selected_skin === 'professional') {
-                $template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/professional_template.php';
-            } elseif ($selected_skin === 'modern') {
-                $template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/modern_template.php';
-            } elseif ($selected_skin === 'simple') {
-                $template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/simple_template.php';
-            }
+        // Set email headers and send email
+        $this->send_email($receiver_email, $subject, $message_body);
+    }
 
-            // Check if template path is valid
-            if (!empty($template_path) && file_exists($template_path)) {
-                // Load template file
-                ob_start();
-                include $template_path;
-                $message_body = ob_get_clean();
-
-                // Replace placeholders in template with actual values
-                $message_body = str_replace('{{title}}', $title, $message_body);
-                $message_body = str_replace('{{content}}', $message, $message_body);
-            } else {
-                // Default template if selected skin template not found
-                $message_body = "$title:\n\n";
-                $message_body .= "From: Admin <" . get_bloginfo('admin_email') . ">\n"; // Set sender as admin
-                $message_body .= "To: $receiver_email\n";
-                $message_body .= "Message: $message";
-            }
-        } elseif ($selected_option === 'template') {
-            // Handling template option
-            // Get email template content using shortcode
-            $message_body = '';
-            if (function_exists('do_shortcode')) {
-                $message_body = do_shortcode('[jve_template id=' . $template_id . ']');
-            } else {
-                error_log('do_shortcode function is not available');
-            }
-            error_log('template_content: ' . $message_body);
-        } else {
-            // Invalid option selected
-            $message_body = 'Invalid option selected.';
+    private function prepare_email_content($selected_option, $template_id, $title, $message, $receiver_id)
+    {
+        $content = "";
+        switch ($selected_option) {
+            case 'skin':
+                $template_path = self::get_template_path($settings['email_skin'] ?? 'professional');
+                $content = $this->load_template_file($template_path, $title, $message);
+                break;
+            case 'template':
+                $content = $this->get_shortcode_content($template_id);
+                break;
+            default:
+                return 'Invalid option selected.';
         }
 
-        // Set email headers
-        $headers = array(
-            'Content-Type: text/html; charset=UTF-8',
-            'Reply-To: ' . get_bloginfo('admin_email'), // Set reply-to as admin
-        );
+        // Replace placeholders in the content with dynamic data
+        $content = str_replace(['{{title}}', '{{content}}'], [$title, $message], $content);
 
-        // Send email to receiver
-        $sent = wp_mail($receiver_email, $subject, $message_body, $headers);
 
-        // Check if email was sent successfully
-        if ($sent) {
-            // Log email sent
-            error_log("Chat notification email sent to $receiver_email.");
-        } else {
-            // Log email send failure
-            error_log("Failed to send chat notification email to $receiver_email.");
-        }
+        error_log("Prepare content before replacements: " . $content);
+
+        // Replace placeholder or add dynamic attributes for shortcodes using regex to ensure precise matching
+        $patterns = [
+            '/\[chat_username\]/',  // Exact match for 'chat_username' without attributes
+            '/\[user_avatar\]/',
+            '/\[dashboard_url\]/',
+            '/\[unread_message_amount\]/'
+        ];
+        $replacements = [
+            "[chat_username receiver_id='{$receiver_id}']",
+            "[user_avatar user_id='{$receiver_id}']",
+            "[dashboard_url user_id='{$receiver_id}']",
+            "[unread_message_amount user_id='{$receiver_id}']"
+        ];
+        $content = preg_replace($patterns, $replacements, $content);
+
+        error_log("Prepare content after replacements: " . $content);
+
+        return do_shortcode($content);
+    }
+
+    private function load_template_file($template_path, $title, $message)
+    {
+        // Load the template file and replace placeholders
+        ob_start();
+        include $template_path;
+        $content = ob_get_clean();
+        return str_replace(['{{title}}', '{{content}}'], [$title, $message], $content);
+    }
+
+    private function get_shortcode_content($template_id)
+    {
+        // Load the content through a shortcode
+        return do_shortcode("[jve_template id='$template_id']");
+    }
+
+    private function send_email($receiver_email, $subject, $message_body)
+    {
+        // Send email
+        $headers = ['Content-Type: text/html; charset=UTF-8', 'Reply-To: ' . get_bloginfo('admin_email')];
+        wp_mail($receiver_email, $subject, $message_body, $headers);
     }
 }

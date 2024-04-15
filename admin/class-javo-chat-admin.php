@@ -20,7 +20,7 @@
  * @subpackage Javo_Chat/admin
  * @author     Javo <javothemes@gmail.com>
  */
-class Javo_Chat_Admin
+class Javo_Chat_Admin extends Javo_Chat_Base
 {
 
 	/**
@@ -61,6 +61,7 @@ class Javo_Chat_Admin
 		add_action('admin_enqueue_scripts', array($this, 'enqueue_styles'));
 		add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
 		add_action('admin_menu', array($this, 'add_plugin_admin_menu'));
+		add_action('init', array($this, 'email_template_shortcodes'));
 
 		add_action('wp_ajax_load_template_content', array($this, 'my_load_template_content_callback'));
 		add_action('wp_ajax_nopriv_load_template_content', array($this, 'my_load_template_content_callback'));
@@ -251,68 +252,42 @@ class Javo_Chat_Admin
 		$selected_option = isset($_POST['skin_or_template']) ? sanitize_text_field($_POST['skin_or_template']) : '';
 		$template_id = isset($_POST['email_template_id']) ? absint($_POST['email_template_id']) : 0;
 
-		// Log selected option and template ID for debugging
-		error_log('Selected Option: ' . $selected_option);
-		error_log('Selected Template ID: ' . $template_id);
-
 		// Get test email address and content from AJAX request
 		$test_email = isset($_POST['test_email']) ? sanitize_email($_POST['test_email']) : '';
 		$title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
-		$content = isset($_POST['content']) ? wp_kses_post($_POST['content']) : '';
+		$message = isset($_POST['content']) ? wp_kses_post($_POST['content']) : '';
 
 		// Validate email format
 		if (!is_email($test_email)) {
 			wp_send_json_error('Invalid email address.');
 		}
 
-		// Check if skin or template is selected
-		if (
-			$selected_option === 'skin'
-		) {
-			// Handling skin option
-			// Get selected skin from AJAX request
-			$selected_skin = isset($_POST['skin']) ? sanitize_text_field($_POST['skin']) : '';
-
-			// Define template path based on selected skin
-			$template_path = '';
-			if ($selected_skin === 'professional') {
-				$template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/professional_template.php';
-			} elseif ($selected_skin === 'modern') {
-				$template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/modern_template.php';
-			} elseif ($selected_skin === 'simple') {
-				$template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/simple_template.php';
-			}
-
-			// Load template content
-			$template_content = '';
+		// Prepare email content based on the selected option
+		$message_body = '';
+		if ($selected_option === 'skin') {
+			// Get template path from selected skin
+			$template_path = self::get_template_path($_POST['skin']);
 			if (!empty($template_path) && file_exists($template_path)) {
 				ob_start();
 				include $template_path;
-				$template_content = ob_get_clean();
+				$message_body = ob_get_clean();
 			} else {
 				wp_send_json_error('Template file not found.');
 			}
 		} elseif ($selected_option === 'template') {
-			// Handling template option
 			// Get email template content using shortcode
-			$template_content = '';
-			if (function_exists('do_shortcode')) {
-				$template_content = do_shortcode('[jve_template id=' . $template_id . ']');
-			} else {
-				error_log('do_shortcode does not work');
-			}
-			error_log('template_content: ' . $template_content);
+			$message_body = do_shortcode("[jve_template id='$template_id']");
 		} else {
-			// Invalid option selected
 			wp_send_json_error('Invalid option selected.');
 		}
 
+		// Replace placeholders and process shortcodes in the message body
+		$message_body = str_replace(['{{title}}', '{{content}}'], [$title, $message], $message_body);
+		$message_body = do_shortcode($message_body);
+
 		// Send test email
-		$subject = $title; // Use title as email subject
-		$headers = array(
-			'Content-Type: text/html; charset=UTF-8',
-		);
-		$sent = wp_mail($test_email, $subject, $template_content, $headers);
+		$headers = ['Content-Type: text/html; charset=UTF-8'];
+		$sent = wp_mail($test_email, $title, $message_body, $headers);
 
 		// Check if email was sent successfully
 		if ($sent) {
@@ -321,6 +296,7 @@ class Javo_Chat_Admin
 			wp_send_json_error('Failed to send test email.');
 		}
 	}
+
 
 
 	/**
@@ -367,5 +343,51 @@ class Javo_Chat_Admin
 
 		// Don't forget to exit!
 		wp_die();
+	}
+
+	public function email_template_shortcodes()
+	{
+		// Site URI
+		add_shortcode('home_url', function () {
+			return home_url();
+		});
+
+		// Site Name
+		add_shortcode('site_name', function () {
+			return get_bloginfo('name');
+		});
+
+		// Author (display_name)
+		add_shortcode('chat_username', function ($atts) {
+			$receiver_id = $atts['receiver_id'] ?? get_current_user_id();
+			error_log("chat_username shortcode called. receiver_id expected: " . ($atts['receiver_id'] ?? 'Not provided') . ", actual: $receiver_id");
+			$author = get_userdata($receiver_id);
+			return $author ? $author->display_name : '';
+		});
+
+		// User Avatar
+		add_shortcode('user_avatar', function ($atts) {
+			$user_id = $atts['user_id'] ?? get_current_user_id();
+			error_log("user_avatar shortcode used for user ID: " . $user_id);
+			$avatar_url = get_avatar_url($user_id);
+			return '<img src="' . esc_url($avatar_url) . '" alt="User Avatar">';
+		});
+
+		// User Dashboard URL
+		add_shortcode('dashboard_url', function ($atts) {
+			$user_id = $atts['user_id'] ?? get_current_user_id();
+			error_log("dashboard_url shortcode used for user ID: " . $user_id);
+			$user_info = get_userdata($user_id);
+			$username = $user_info ? $user_info->user_login : '';
+			return home_url('/member/' . $username . '/chat/');
+		});
+
+		// Unread Messages Amount
+		add_shortcode('unread_message_amount', function ($atts) {
+			$user_id = $atts['user_id'] ?? get_current_user_id();
+			error_log("unread_message_amount shortcode used for user ID: " . $user_id);
+			$unread_count = get_user_meta($user_id, 'jv_chat_unread_messages_count', true);
+			return $unread_count ? $unread_count : '0';  // Return '0' if no unread messages
+		});
 	}
 }
