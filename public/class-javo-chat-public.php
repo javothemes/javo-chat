@@ -20,50 +20,52 @@
  * @subpackage Javo_Chat/public
  * @author     Javo <javothemes@gmail.com>
  */
-class Javo_Chat_Public {
+class Javo_Chat_Public
+{
 
-	/**
-	 * The ID of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $plugin_name    The ID of this plugin.
-	 */
+    /**
+     * The ID of this plugin.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $plugin_name    The ID of this plugin.
+     */
 
 
     private $db;
     public $jv_chat_mode;
 
-	private $plugin_name;
+    private $plugin_name;
 
-	/**
-	 * The version of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
-	 */
-	private $version;
+    /**
+     * The version of this plugin.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $version    The current version of this plugin.
+     */
+    private $version;
 
-	/**
-	 * Initialize the class and set its properties.
-	 *
-	 * @since    1.0.0
-	 * @param      string    $plugin_name       The name of the plugin.
-	 * @param      string    $version    The version of this plugin.
-	 */
-	public function __construct( $plugin_name, $version ) {
+    /**
+     * Initialize the class and set its properties.
+     *
+     * @since    1.0.0
+     * @param      string    $plugin_name       The name of the plugin.
+     * @param      string    $version    The version of this plugin.
+     */
+    public function __construct($plugin_name, $version)
+    {
 
-		$this->plugin_name = $plugin_name;
-		$this->version = $version;
-		$this->define_public_hooks();
+        $this->plugin_name = $plugin_name;
+        $this->version = $version;
+        $this->define_public_hooks();
         global $wpdb;
         $this->db = $wpdb;
+    }
 
-	}
 
-
-    public function setUserChatMode() {
+    public function setUserChatMode()
+    {
         if (is_user_logged_in()) {
             // Get current user's ID
             //$sender_id = get_current_user_id();
@@ -75,8 +77,9 @@ class Javo_Chat_Public {
         }
     }
 
-    public function define_public_hooks() {
-       // Call enqueue_scripts() method on init hook
+    public function define_public_hooks()
+    {
+        // Call enqueue_scripts() method on init hook
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts')); // Call enqueue_scripts() method
 
         // Register shortcode and set user chat mode
@@ -89,14 +92,14 @@ class Javo_Chat_Public {
         add_action('wp_ajax_nopriv_check_for_new_messages', array($this, 'check_for_new_messages_callback'));
 
         // Get Chat parterners
-        add_action('wp_ajax_get_chat_partners', array( $this, 'get_chat_partners_ajax'));
-        add_action('wp_ajax_nopriv_get_chat_partners', array( $this, 'get_chat_partners_ajax'));
+        add_action('wp_ajax_get_chat_partners', array($this, 'get_chat_partners_ajax'));
+        add_action('wp_ajax_nopriv_get_chat_partners', array($this, 'get_chat_partners_ajax'));
 
-        add_action( 'wp_ajax_send_message', array( $this, 'send_message_callback' ) );
-        add_action( 'wp_ajax_nopriv_send_message', array( $this, 'send_message_callback' ) );
+        add_action('wp_ajax_send_message', array($this, 'send_message_callback'));
+        add_action('wp_ajax_nopriv_send_message', array($this, 'send_message_callback'));
 
-        add_action( 'wp_ajax_get_chat_messages', array( $this, 'get_chat_messages_callback' ) );
-        add_action( 'wp_ajax_nopriv_get_chat_messages', array( $this, 'get_chat_messages_callback' ) );
+        add_action('wp_ajax_get_chat_messages', array($this, 'get_chat_messages_callback'));
+        add_action('wp_ajax_nopriv_get_chat_messages', array($this, 'get_chat_messages_callback'));
 
         add_action('wp_ajax_mark_unread_messages_as_read', array($this, 'mark_unread_messages_as_read_callback')); // Read / Unread
         add_action('wp_ajax_nopriv_mark_unread_messages_as_read', array($this, 'mark_unread_messages_as_read_callback')); // Read / Unread
@@ -176,23 +179,23 @@ class Javo_Chat_Public {
 
         // Hook into the WordPress footer to run the shortcode
         add_action('wp_footer', array($this, 'run_chat_shortcode_for_lv_listing'));
-
     }
 
-     /**
-	 * Register the JavaScript for the public-facing side of the site.
-	 *
-	 * @since    1.0.0
-	 */
-	// Register the JavaScript for the public-facing side of the site.
-    public function enqueue_scripts() {
+    /**
+     * Register the JavaScript for the public-facing side of the site.
+     *
+     * @since    1.0.0
+     */
+    // Register the JavaScript for the public-facing side of the site.
+    public function enqueue_scripts()
+    {
         global $javo_chat_mode;
 
         // Load existing scripts and styles
         wp_enqueue_script($this->plugin_name . '-emoji-button', 'https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@3.0.3/dist/index.min.js', array(), $this->version, 'all');
 
         // Check if media uploader script is not already enqueued before enqueuing it
-        if ( ! wp_script_is('media-upload', 'enqueued') && ! wp_script_is('thickbox', 'enqueued') && ! is_admin()) {
+        if (!wp_script_is('media-upload', 'enqueued') && !wp_script_is('thickbox', 'enqueued') && !is_admin()) {
             wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/javo-chat-public.js', array('jquery', 'media-editor'), $this->version, array('in_footer' => true));
             wp_enqueue_media();
         }
@@ -208,30 +211,31 @@ class Javo_Chat_Public {
     }
 
     /**
-	 * Register the stylesheets for the public-facing side of the site.
-	 *
+     * Register the stylesheets for the public-facing side of the site.
+     *
      * @since    1.0.0
-	 */
-    public function enqueue_styles() {
+     */
+    public function enqueue_styles()
+    {
 
         /**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Javo_Chat_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Javo_Chat_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
+         * This function is provided for demonstration purposes only.
+         *
+         * An instance of this class should be passed to the run() function
+         * defined in Javo_Chat_Loader as all of the hooks are defined
+         * in that particular class.
+         *
+         * The Javo_Chat_Loader will then create the relationship
+         * between the defined hooks and the functions defined in this
+         * class.
+         */
 
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/javo-chat-public.css', array(), $this->version, 'all' );
+        wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/javo-chat-public.css', array(), $this->version, 'all');
+    }
 
-	}
 
-
-    public function visitor_start_chat_callback() {
+    public function visitor_start_chat_callback()
+    {
         // Security check
         check_ajax_referer('chatSecurityNonce', 'nonce');
 
@@ -252,7 +256,8 @@ class Javo_Chat_Public {
         }
     }
 
-    public function get_chat_user_id() {
+    public function get_chat_user_id()
+    {
         // Check if the user is logged in
         if (is_user_logged_in()) {
             // Use the current logged-in user's ID as the sender ID
@@ -267,8 +272,9 @@ class Javo_Chat_Public {
         }
     }
 
-    public function run_chat_shortcode_for_lv_listing() {
-    // Check if the current page is a single page for the 'lv_listing' post type
+    public function run_chat_shortcode_for_lv_listing()
+    {
+        // Check if the current page is a single page for the 'lv_listing' post type
         if (is_singular('lv_listing')) {
 
             // Get the author id
@@ -276,12 +282,12 @@ class Javo_Chat_Public {
 
             // Output the shortcode
             echo do_shortcode('[javo_chat mode="chat_single_mode" receiver_id="' . $author_id . '"]');
-
         }
     }
 
     // Registering a shortcode to display a chat interface
-    public function javo_chat_shortcode($atts) {
+    public function javo_chat_shortcode($atts)
+    {
         // Define default attributes for the shortcode
         $atts = shortcode_atts(array(
             'mode' => 'chat_full_mode', // Default mode
@@ -315,112 +321,112 @@ class Javo_Chat_Public {
 
         // Return the HTML code to display the chat window
         ob_start();
-        ?>
+?>
         <div id="chatToastContainer" class="jv-sheme-skin5 toast-container position-fixed end-0 p-3" style="z-index: 10000"></div>
         <div id="javo-chat-wrap" class="chat-wrap <?php echo $jv_chat_mode; ?> rounded-4 shadow" data-jv-chat-mode="<?php echo $jv_chat_mode; ?>" data-jv-chat-receiver-id="<?php echo $receiver_id; ?>" data-jv-chat-isLogin="<?php echo $is_login ? 'true' : 'false'; ?>">
-            <?php if ($jv_chat_mode !=='chat_single_mode') { ?>
-            <!-- Sidebar -->
-            <div class="chat-side d-flex flex-column align-items-center border-end px-2 my-3">
+            <?php if ($jv_chat_mode !== 'chat_single_mode') { ?>
+                <!-- Sidebar -->
+                <div class="chat-side d-flex flex-column align-items-center border-end px-2 my-3">
 
-                <!-- Icons: Message, Phone, User, Notification -->
-                <div class="my-3">
-                    <a tabindex="0" class="view-all-users" role="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr__('All List', 'your-text-domain'); ?>">
-                        <i class="feather feather-message-square fs-5"></i>
-                    </a>
-                </div>
-                <div class="my-3">
-                    <a tabindex="0" class="view-chat-action-history" role="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr__('History', 'your-text-domain'); ?>">
-                        <i class="feather feather-bell fs-5"></i>
-                    </a>
-                </div>
+                    <!-- Icons: Message, Phone, User, Notification -->
+                    <div class="my-3">
+                        <a tabindex="0" class="view-all-users" role="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr__('All List', 'your-text-domain'); ?>">
+                            <i class="feather feather-message-square fs-5"></i>
+                        </a>
+                    </div>
+                    <div class="my-3">
+                        <a tabindex="0" class="view-chat-action-history" role="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr__('History', 'your-text-domain'); ?>">
+                            <i class="feather feather-bell fs-5"></i>
+                        </a>
+                    </div>
 
-                <div class="my-3">
-                    <a tabindex="0" class="view-favorite-messages" class="text-white" role="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr__('Saved Messages', 'your-text-domain'); ?>">
-                        <i class="feather feather-heart fs-5"></i>
-                    </a>
-                </div>
+                    <div class="my-3">
+                        <a tabindex="0" class="view-favorite-messages" class="text-white" role="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr__('Saved Messages', 'your-text-domain'); ?>">
+                            <i class="feather feather-heart fs-5"></i>
+                        </a>
+                    </div>
 
-                <div class="my-3">
-                    <a tabindex="0" class="view-favorite-users" role="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr__('Saved Users', 'your-text-domain'); ?>">
-                        <i class="feather feather-user fs-5"></i>
-                    </a>
-                </div>
+                    <div class="my-3">
+                        <a tabindex="0" class="view-favorite-users" role="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr__('Saved Users', 'your-text-domain'); ?>">
+                            <i class="feather feather-user fs-5"></i>
+                        </a>
+                    </div>
 
-                <div class="my-3">
-                    <a tabindex="0" class="view-blocked-users" role="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr__('Blocked Users', 'your-text-domain'); ?>">
-                        <i class="feather feather-user-x fs-5"></i>
-                    </a>
-                </div>
+                    <div class="my-3">
+                        <a tabindex="0" class="view-blocked-users" role="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr__('Blocked Users', 'your-text-domain'); ?>">
+                            <i class="feather feather-user-x fs-5"></i>
+                        </a>
+                    </div>
 
-                <!-- Spacer to push settings and logout to the bottom -->
-                <div class="mt-auto w-100"></div>
+                    <!-- Spacer to push settings and logout to the bottom -->
+                    <div class="mt-auto w-100"></div>
 
-                <!-- Settings and Logout Icons -->
-                <div class="my-3">
-                    <a tabindex="0" class="settings-button" role="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr__('Settings', 'your-text-domain'); ?>">
-                        <i class="feather feather-settings fs-5"></i>
-                    </a>
-                </div>
-            </div>
-
-            <div class="chat-list px-3 pt-4 pb-4 position-relative">
-                <!-- Avatar -->
-                <div class="my-3 my-avatar d-flex align-items-center justify-content-center flex-column">
-                    <div class="position-absolute top-0 end-0 mt-5 me-4">
-                            <a tabindex="0" class="settings-button" role="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr__('Settings', 'your-text-domain'); ?>">
+                    <!-- Settings and Logout Icons -->
+                    <div class="my-3">
+                        <a tabindex="0" class="settings-button" role="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr__('Settings', 'your-text-domain'); ?>">
                             <i class="feather feather-settings fs-5"></i>
                         </a>
                     </div>
-                   <?php
-                    // Get avatar
-                    $user_avatar = $this->get_user_avatar_url(get_current_user_id()); // Get default avatar URL
-
-                    // Get current user's display name
-                    $user_display_name = get_user_meta(get_current_user_id(), 'nickname', true);
-                    ?>
-
-                    <img src="<?php echo esc_url($user_avatar); ?>" alt="Avatar" class="rounded-circle my-avatar" style="width: 80px; height: 80px;" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    <h3 class="text-capitalize"><?php echo esc_html($user_display_name); ?></h3>
-
-                    <div class="btn-group">
-                        <button type="button" class="btn <?php echo $this->get_chat_user_status()['class']; ?> dropdown-toggle btn-status text-capitalize py-0 px-2 fs-7 fw-semibold" data-bs-toggle="dropdown" aria-expanded="false">
-                            <?php echo $this->get_chat_user_status()['text']; ?>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#" data-status="online"><?php _e('Online', 'text-domain'); ?></a></li>
-                            <li><a class="dropdown-item" href="#" data-status="busy"><?php _e('Busy', 'text-domain'); ?></a></li>
-                            <li><a class="dropdown-item" href="#" data-status="away"><?php _e('Away', 'text-domain'); ?></a></li>
-                        </ul>
-                    </div>
                 </div>
 
-                <div class="chat-search-wrap">
-                    <div class="search-form">
-                        <!-- Search input -->
-                        <div class="input-group mb-3 position-relative">
-                            <input type="text" class="form-control jv-bg-secondary border-0 fs-6 jv-color-text form-control-lg py-3 px-3 me-1 flex-grow-1 rounded-3" placeholder="Search for users, messages..." id="search-input">
-                            <div class="input-group-append">
-                                <span id="spinner" class="spinner-border spinner-border-sm text-primary me-2" role="status" style="display: none;">
-                                    <span class="sr-only">Loading...</span>
-                                </span>
-                                <button id="clear-search" class="btn btn me-1 p-0" style="display: none;">
-                                    <i class="feather feather-x-circle"></i>
-                                </button>
-                            </div>
+                <div class="chat-list px-3 pt-4 pb-4 position-relative">
+                    <!-- Avatar -->
+                    <div class="my-3 my-avatar d-flex align-items-center justify-content-center flex-column">
+                        <div class="position-absolute top-0 end-0 mt-5 me-4">
+                            <a tabindex="0" class="settings-button" role="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr__('Settings', 'your-text-domain'); ?>">
+                                <i class="feather feather-settings fs-5"></i>
+                            </a>
                         </div>
-                        <!-- Chat user list -->
-                        <ul class="list-group chat-list" id="chat-list">
-                            <!-- List of chat users will be displayed here -->
-                        </ul>
-                    </div>
-                    <div id="search-result-wrap"></div>
-                </div>
+                        <?php
+                        // Get avatar
+                        $user_avatar = $this->get_user_avatar_url(get_current_user_id()); // Get default avatar URL
 
-                <div id="chat-user-list">
-                    <h4 id="chat-partners-title" class="fs-6">All Chat Users</h4>
-                    <ul id="chat-partner-list"></ul>
+                        // Get current user's display name
+                        $user_display_name = get_user_meta(get_current_user_id(), 'nickname', true);
+                        ?>
+
+                        <img src="<?php echo esc_url($user_avatar); ?>" alt="Avatar" class="rounded-circle my-avatar" style="width: 80px; height: 80px;" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <h3 class="text-capitalize"><?php echo esc_html($user_display_name); ?></h3>
+
+                        <div class="btn-group">
+                            <button type="button" class="btn <?php echo $this->get_chat_user_status()['class']; ?> dropdown-toggle btn-status text-capitalize py-0 px-2 fs-7 fw-semibold" data-bs-toggle="dropdown" aria-expanded="false">
+                                <?php echo $this->get_chat_user_status()['text']; ?>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" data-status="online"><?php _e('Online', 'text-domain'); ?></a></li>
+                                <li><a class="dropdown-item" href="#" data-status="busy"><?php _e('Busy', 'text-domain'); ?></a></li>
+                                <li><a class="dropdown-item" href="#" data-status="away"><?php _e('Away', 'text-domain'); ?></a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="chat-search-wrap">
+                        <div class="search-form">
+                            <!-- Search input -->
+                            <div class="input-group mb-3 position-relative">
+                                <input type="text" class="form-control jv-bg-secondary border-0 fs-6 jv-color-text form-control-lg py-3 px-3 me-1 flex-grow-1 rounded-3" placeholder="Search for users, messages..." id="search-input">
+                                <div class="input-group-append">
+                                    <span id="spinner" class="spinner-border spinner-border-sm text-primary me-2" role="status" style="display: none;">
+                                        <span class="sr-only">Loading...</span>
+                                    </span>
+                                    <button id="clear-search" class="btn btn me-1 p-0" style="display: none;">
+                                        <i class="feather feather-x-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Chat user list -->
+                            <ul class="list-group chat-list" id="chat-list">
+                                <!-- List of chat users will be displayed here -->
+                            </ul>
+                        </div>
+                        <div id="search-result-wrap"></div>
+                    </div>
+
+                    <div id="chat-user-list">
+                        <h4 id="chat-partners-title" class="fs-6">All Chat Users</h4>
+                        <ul id="chat-partner-list"></ul>
+                    </div>
                 </div>
-            </div>
 
             <?php } ?>
 
@@ -441,44 +447,46 @@ class Javo_Chat_Public {
 
                         <p class="text-muted"><?php esc_html_e('Already have an account?', 'your-text-domain'); ?> <a href="javascript:void(0);" class="login-btn render-icon" data-bs-toggle="modal" data-bs-target="#login_panel"><?php esc_html_e('Login', 'your-text-domain'); ?></a></p>
                     </div>
-            <?php }} ?>
+            <?php }
+            } ?>
 
-            <div id="chat-interface" class="flex-grow-1<?php if ($jv_chat_mode !=='chat_single_mode') { ?> my-4 me-4<?php } ?> position-relative">
-                <?php if ($jv_chat_mode === 'chat_single_mode'): ?>
+            <div id="chat-interface" class="flex-grow-1<?php if ($jv_chat_mode !== 'chat_single_mode') { ?> my-4 me-4<?php } ?> position-relative">
+                <?php if ($jv_chat_mode === 'chat_single_mode') : ?>
                     <button id="end-chat-button" class="end-chat-button d-flex align-items-center z-index-1 position-absolute rounded"><?php echo esc_attr__('End Chat', 'your-text-domain'); ?></button>
                 <?php endif; ?>
 
                 <div id="javo-interface-inner" class="position-relative flex-column border-1 w-100 h-100 rounded-4" data-sender-id="<?php echo $sender_id; ?>">
 
                     <div id="participant-panel" class="p-4 border-bottom d-flex justify-content-between"></div>
-                     <?php
+                    <?php
                     // Check if notice title and content exist
-                    $notice_title = get_option( 'javo_chat_admin_notice_title', '' );
-                    $notice_content = get_option( 'javo_chat_admin_notice_content', '' );
+                    $notice_title = get_option('javo_chat_admin_notice_title', '');
+                    $notice_content = get_option('javo_chat_admin_notice_content', '');
                     ?>
                     <?php if (!empty($notice_title) || !empty($notice_content)) : ?>
-                    <div id="admin-notice" class="py-1 px-4">
-                        <?php if (!empty($notice_title)) : ?>
-                        <div class="d-inline-flex gap-1">
-                            <a class="d-flex align-items-center gap-1" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                                <i class="feather feather-coffee"></i><span><?php echo esc_html($notice_title); ?></span>
-                            </a>
-                        </div>
-                        <?php endif; ?>
-                        <div class="collapse" id="collapseExample">
-                            <div class="card card-body border-0">
-                                <?php if (!empty($notice_content)) : ?>
-                                <?php echo esc_html($notice_content); ?>
-                                <?php else : ?>
-                                <?php esc_html_e('No content available.', 'your-text-domain'); ?>
-                                <?php endif; ?>
+                        <div id="admin-notice" class="py-1 px-4">
+                            <?php if (!empty($notice_title)) : ?>
+                                <div class="d-inline-flex gap-1">
+                                    <a class="d-flex align-items-center gap-1" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                        <i class="feather feather-coffee"></i><span><?php echo esc_html($notice_title); ?></span>
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+                            <div class="collapse" id="collapseExample">
+                                <div class="card card-body border-0">
+                                    <?php if (!empty($notice_content)) : ?>
+                                        <?php echo esc_html($notice_content); ?>
+                                    <?php else : ?>
+                                        <?php esc_html_e('No content available.', 'your-text-domain'); ?>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     <?php endif; ?>
 
                     <div id="chat-messages" class="pb-2 mb-2 w-100"></div>
-                    <div id="loading-message" class="p-5" style="display:none;"><?php echo __('Loading...', 'your-text-domain'); ?> <div class="spinner-grow spinner-grow-sm" role="status"><span class="visually-hidden"><?php echo __('Loading...', 'your-text-domain'); ?></span></div></div>
+                    <div id="loading-message" class="p-5" style="display:none;"><?php echo __('Loading...', 'your-text-domain'); ?> <div class="spinner-grow spinner-grow-sm" role="status"><span class="visually-hidden"><?php echo __('Loading...', 'your-text-domain'); ?></span></div>
+                    </div>
                     <div id="scrollToBottomButton" class="position-absolute bottom-10 end-0 me-4 mb-4 opacity-50">
                         <span class="p-3 bg-light">
                             <i class="feather feather-chevron-down"></i>
@@ -489,9 +497,9 @@ class Javo_Chat_Public {
                     <div id="typing-indicator">
                         <div class="bubble">
                             <div class="dots-container">
-                            <div class="dot"></div>
-                            <div class="dot"></div>
-                            <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
                             </div>
                         </div>
                     </div>
@@ -501,9 +509,9 @@ class Javo_Chat_Public {
                             <!-- Message input form -->
                             <div class="position-relative d-flex flex-grow-1">
                                 <input type="text" id="message-input" class="form-control jv-bg-secondary fs-6 jv-color-text py-0 ps-3 me-2 flex-grow-1 border-0 rounded-2" placeholder="<?php echo __('Type your message...', 'your-text-domain'); ?>">
-                               <div class="chat-input-btn d-flex align-items-center me-4 gap-2 position-absolute top-50 end-0 translate-middle-y">
+                                <div class="chat-input-btn d-flex align-items-center me-4 gap-2 position-absolute top-50 end-0 translate-middle-y">
                                     <button id="emoji_btn" class="btn px-0 border-0 background-none z-index-1" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr(__('Insert Emoji', 'your-text-domain')); ?>"><i class="feather feather-smile"></i></button>
-                                    <?php if (is_user_logged_in()): ?>
+                                    <?php if (is_user_logged_in()) : ?>
                                         <button id="send_img_btn" class="btn px-0 border-0 background-none z-index-1" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr(__('Send Image', 'your-text-domain')); ?>"><i class="feather feather-image"></i></button>
                                     <?php endif; ?>
                                     <button id="load-previous" class="btn px-0 border-0 z-index-1" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr(__('Load Previous Messages', 'your-text-domain')); ?>">
@@ -517,15 +525,9 @@ class Javo_Chat_Public {
                                 <span class="visually-hidden"><?php echo __('Loading...', 'your-text-domain'); ?></span>
                                 <span class="btn-txt">
                                     <svg viewBox="0 0 24 24" height="18" width="18" class="me-1" xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M2.759,15.629a1.664,1.664,0,0,1-.882-3.075L20.36,1A1.663,1.663,0,0,1,22.876,2.72l-3.6,19.173a1.664,1.664,0,0,1-2.966.691L11.1,15.629Z"
-                                            fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                            stroke-width="1.5"></path>
-                                        <path d="M11.1,15.629H8.6V20.8a1.663,1.663,0,0,0,2.6,1.374l3.178-2.166Z" fill="none"
-                                            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                            stroke-width="1.5"></path>
-                                        <path d="M11.099 15.629L22.179 1.039" fill="none" stroke="currentColor"
-                                            stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+                                        <path d="M2.759,15.629a1.664,1.664,0,0,1-.882-3.075L20.36,1A1.663,1.663,0,0,1,22.876,2.72l-3.6,19.173a1.664,1.664,0,0,1-2.966.691L11.1,15.629Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+                                        <path d="M11.1,15.629H8.6V20.8a1.663,1.663,0,0,0,2.6,1.374l3.178-2.166Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+                                        <path d="M11.099 15.629L22.179 1.039" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
                                     </svg>
                                 </span>
                             </button>
@@ -554,7 +556,7 @@ class Javo_Chat_Public {
                 <div id="chat-settings" class="settings-container vstack gap-2">
                     <h4><?php esc_html_e('Chat Settings', 'your-text-domain'); ?></h4>
 
-                     <!-- Avatar Change -->
+                    <!-- Avatar Change -->
                     <div class="setting-item hstack gap-3">
                         <label class="form-check-label" for="change-avatar"><?php esc_html_e('Change Avatar', 'your-text-domain'); ?></label><button id="change-avatar" class="btn btn-primary"><?php esc_html_e('Change', 'your-text-domain'); ?></button>
                         <a tabindex="0" class="view-all-users" role="button" data-bs-toggle="tooltip" data-bs-placement="right" title="<?php echo esc_attr__('Click to select a new avatar.', 'your-text-domain'); ?>">
@@ -598,13 +600,13 @@ class Javo_Chat_Public {
                         </div>
                         <select id="chat-theme" class="form-select">
                             <option <?php echo ($chat_theme == 'Default') ? 'selected' : ''; ?>>
-                            <?php esc_html_e('Default', 'your-text-domain'); ?>
+                                <?php esc_html_e('Default', 'your-text-domain'); ?>
                             </option>
                             <option <?php echo ($chat_theme == 'Dark') ? 'selected' : ''; ?>>
-                            <?php esc_html_e('Dark', 'your-text-domain'); ?>
+                                <?php esc_html_e('Dark', 'your-text-domain'); ?>
                             </option>
                             <option <?php echo ($chat_theme == 'Light') ? 'selected' : ''; ?>>
-                            <?php esc_html_e('Light', 'your-text-domain'); ?>
+                                <?php esc_html_e('Light', 'your-text-domain'); ?>
                             </option>
                         </select>
                     </div>
@@ -625,34 +627,59 @@ class Javo_Chat_Public {
                         <div class="italic-text fs-6 ms-1">
                             <i><?php esc_html_e('Set a fixed notification for the chat owner. E.g., We are off for this month.', 'your-text-domain'); ?></i>
                         </div>
-                    </div>                  
+                    </div>
                 </div>
                 <button id="back-to-chat" class="btn btn-secondary mt-3"><?php esc_html_e('Back to Chat', 'your-text-domain'); ?></button>
             </div>
-        <div id="javo-interface-inner-profile-detail" class="d-flex<?php if ($jv_chat_mode !=='chat_single_mode') { ?> my-4<?php } ?> p-0">
+            <div id="javo-interface-inner-profile-detail" class="d-flex<?php if ($jv_chat_mode !== 'chat_single_mode') { ?> my-4<?php } ?> p-0">
 
-            <div class="col-sm-2 col-auto px-0 collapse collapse-horizontal overflow-hidden w-100" id="profile-sidebar">
-                <div id="participant-detail-panel"></div>
+                <div class="col-sm-2 col-auto px-0 collapse collapse-horizontal overflow-hidden w-100" id="profile-sidebar">
+                    <div id="participant-detail-panel"></div>
+                </div>
             </div>
-        </div>
 
         </div>
-        <?php if ($jv_chat_mode === 'chat_single_mode'): ?>
+        <?php if ($jv_chat_mode === 'chat_single_mode') : ?>
             <div id="jv-floating-chat-button" class="d-flex align-items-center justify-content-center shadow-sm">
                 <div class="chat-icon-x">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 19 18" class="conversations-visitor-close-icon"><g fill="none" fill-rule="evenodd" stroke="none" stroke-width="1"><g fill="#ffffff" transform="translate(-927 -991) translate(900.277 962)"><g transform="translate(27 29)"><path d="M10.627 9.013l6.872 6.873.708.707-1.415 1.414-.707-.707-6.872-6.872L2.34 17.3l-.707.707L.22 16.593l.707-.707L7.8 9.013.946 2.161l-.707-.708L1.653.04l.707.707L9.213 7.6 16.066.746l.707-.707 1.414 1.414-.707.708-6.853 6.852z"></path></g></g></g></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 19 18" class="conversations-visitor-close-icon">
+                        <g fill="none" fill-rule="evenodd" stroke="none" stroke-width="1">
+                            <g fill="#ffffff" transform="translate(-927 -991) translate(900.277 962)">
+                                <g transform="translate(27 29)">
+                                    <path d="M10.627 9.013l6.872 6.873.708.707-1.415 1.414-.707-.707-6.872-6.872L2.34 17.3l-.707.707L.22 16.593l.707-.707L7.8 9.013.946 2.161l-.707-.708L1.653.04l.707.707L9.213 7.6 16.066.746l.707-.707 1.414 1.414-.707.708-6.853 6.852z"></path>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
                 </div>
                 <div class="chat-icon-bubble active">
-                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="30" viewBox="0 0 39 37" class="conversations-visitor-open-icon"><defs><path id="conversations-visitor-open-icon-path-1:r0:" d="M31.4824242 24.6256121L31.4824242 0.501369697 0.476266667 0.501369697 0.476266667 24.6256121z"></path></defs><g fill="none" fill-rule="evenodd" stroke="none" stroke-width="1"><g transform="translate(-1432 -977) translate(1415.723 959.455)"><g transform="translate(17 17)"><g transform="translate(6.333 .075)"><path fill="#ffffff" d="M30.594 4.773c-.314-1.943-1.486-3.113-3.374-3.38C27.174 1.382 22.576.5 15.36.5c-7.214 0-11.812.882-11.843.889-1.477.21-2.507.967-3.042 2.192a83.103 83.103 0 019.312-.503c6.994 0 11.647.804 12.33.93 3.079.462 5.22 2.598 5.738 5.728.224 1.02.932 4.606.932 8.887 0 2.292-.206 4.395-.428 6.002 1.22-.516 1.988-1.55 2.23-3.044.008-.037.893-3.814.893-8.415 0-4.6-.885-8.377-.89-8.394"></path></g><g fill="#ffffff" transform="translate(0 5.832)"><path d="M31.354 4.473c-.314-1.944-1.487-3.114-3.374-3.382-.046-.01-4.644-.89-11.859-.89-7.214 0-11.813.88-11.843.888-1.903.27-3.075 1.44-3.384 3.363C.884 4.489 0 8.266 0 12.867c0 4.6.884 8.377.889 8.393.314 1.944 1.486 3.114 3.374 3.382.037.007 3.02.578 7.933.801l2.928 5.072a1.151 1.151 0 001.994 0l2.929-5.071c4.913-.224 7.893-.794 7.918-.8 1.902-.27 3.075-1.44 3.384-3.363.01-.037.893-3.814.893-8.414 0-4.601-.884-8.378-.888-8.394"></path></g></g></g></g></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="30" viewBox="0 0 39 37" class="conversations-visitor-open-icon">
+                        <defs>
+                            <path id="conversations-visitor-open-icon-path-1:r0:" d="M31.4824242 24.6256121L31.4824242 0.501369697 0.476266667 0.501369697 0.476266667 24.6256121z"></path>
+                        </defs>
+                        <g fill="none" fill-rule="evenodd" stroke="none" stroke-width="1">
+                            <g transform="translate(-1432 -977) translate(1415.723 959.455)">
+                                <g transform="translate(17 17)">
+                                    <g transform="translate(6.333 .075)">
+                                        <path fill="#ffffff" d="M30.594 4.773c-.314-1.943-1.486-3.113-3.374-3.38C27.174 1.382 22.576.5 15.36.5c-7.214 0-11.812.882-11.843.889-1.477.21-2.507.967-3.042 2.192a83.103 83.103 0 019.312-.503c6.994 0 11.647.804 12.33.93 3.079.462 5.22 2.598 5.738 5.728.224 1.02.932 4.606.932 8.887 0 2.292-.206 4.395-.428 6.002 1.22-.516 1.988-1.55 2.23-3.044.008-.037.893-3.814.893-8.415 0-4.6-.885-8.377-.89-8.394"></path>
+                                    </g>
+                                    <g fill="#ffffff" transform="translate(0 5.832)">
+                                        <path d="M31.354 4.473c-.314-1.944-1.487-3.114-3.374-3.382-.046-.01-4.644-.89-11.859-.89-7.214 0-11.813.88-11.843.888-1.903.27-3.075 1.44-3.384 3.363C.884 4.489 0 8.266 0 12.867c0 4.6.884 8.377.889 8.393.314 1.944 1.486 3.114 3.374 3.382.037.007 3.02.578 7.933.801l2.928 5.072a1.151 1.151 0 001.994 0l2.929-5.071c4.913-.224 7.893-.794 7.918-.8 1.902-.27 3.075-1.44 3.384-3.363.01-.037.893-3.814.893-8.414 0-4.601-.884-8.378-.888-8.394"></path>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
                 </div>
             </div>
         <?php endif; ?>
 
-        <?php
+<?php
         return ob_get_clean();
     }
 
-    public function convert_format_date($last_activity_time) {
+    public function convert_format_date($last_activity_time)
+    {
         // Check if the last activity time is the Epoch time or not set
         if (empty($last_activity_time) || $last_activity_time == '1970-01-01 00:00:00') {
             return 'Never';
@@ -703,15 +730,15 @@ class Javo_Chat_Public {
      * @param int $user_id The ID of the user.
      * @return string|false The URL of the user's avatar, or false on failure.
      */
-    function get_user_avatar_url($user_id) {
+    function get_user_avatar_url($user_id)
+    {
 
         // error_log("get_user_avatar_url: " . $user_id);
         // Check if the user ID exists and is numeric
-            if (!is_numeric($user_id) || empty($user_id) || !get_user_by('id', $user_id)) {
+        if (!is_numeric($user_id) || empty($user_id) || !get_user_by('id', $user_id)) {
 
             // If user ID is invalid or not found, return URL of a default avatar or placeholder
             return plugin_dir_url(__DIR__) . 'public/images/default-avatar.png';
-
         }
 
         // Get the avatar attachment ID from user meta
@@ -727,7 +754,8 @@ class Javo_Chat_Public {
         }
     }
 
-    public function get_chat_partners_ajax() {
+    public function get_chat_partners_ajax()
+    {
         // Verify nonce for security
         check_ajax_referer('chatSecurityNonce', 'nonce');
         global $wpdb;
@@ -772,7 +800,8 @@ class Javo_Chat_Public {
         // Generate WHERE clause from conditions
         $sql_where = implode(' AND ', $sql_conditions);
 
-        $sql = $wpdb->prepare("
+        $sql = $wpdb->prepare(
+            "
             SELECT partner_id, MAX(submit_date) as last_message_time
             FROM (
                 SELECT
@@ -867,7 +896,8 @@ class Javo_Chat_Public {
      *
      * @since    1.0.0
      */
-    public function get_chatPartnerSingle() {
+    public function get_chatPartnerSingle()
+    {
         // Check nonce using the nonce sent from client
         check_ajax_referer('chatSecurityNonce', 'nonce');
 
@@ -875,11 +905,11 @@ class Javo_Chat_Public {
         $receiverId = isset($_POST['receiverId']) ? $_POST['receiverId'] : '';
         $currentUserId = get_current_user_id(); // Get the current user's ID
 
-       // Default response
+        // Default response
         $userData = array(
             'isBlocked' => false,
             'isMyself' => false,
-            'displayName' => 'Visitor ('. $receiverId .')',
+            'displayName' => 'Visitor (' . $receiverId . ')',
             'avatarUrl' => $this->get_user_avatar_url($receiverId),
             'unreadMessagesCount' => 0,
             'userStatus' => 'offline',
@@ -888,7 +918,7 @@ class Javo_Chat_Public {
             'blockedUser' => false
         );
 
-       // Check if current user is trying to chat with themselves
+        // Check if current user is trying to chat with themselves
         if ($currentUserId == $receiverId) {
             $userData['isMyself'] = true;
             // Set isBlocked to true to disable message input for oneself
@@ -939,7 +969,8 @@ class Javo_Chat_Public {
      *
      * @since    1.0.0.10
      */
-    public function send_message_callback() {
+    public function send_message_callback()
+    {
         // Check if nonce is valid
         if (!wp_verify_nonce($_POST['nonce'], 'chatSecurityNonce')) {
             wp_send_json_error('Nonce verification failed');
@@ -988,7 +1019,6 @@ class Javo_Chat_Public {
                 //Check and send notification
                 $this->check_send_email_callback($message_id, $sender_id, $receiver_id, $message);
                 wp_send_json_success('Message inserted successfully');
-
             } else {
                 wp_send_json_error('Failed to insert message into database');
             }
@@ -1004,7 +1034,8 @@ class Javo_Chat_Public {
      * @param int    $receiver_id  ID of the receiver
      * @param string $status       Message status (read or unread)
      */
-    function update_message_status($message_id, $receiver_id, $status) {
+    function update_message_status($message_id, $receiver_id, $status)
+    {
 
         // Update meta table with message status
         $table_name = $this->db->prefix . 'javo_core_conversations_meta';
@@ -1029,7 +1060,8 @@ class Javo_Chat_Public {
     /**
      * Handles AJAX request for checking new messages.
      */
-    public function check_for_new_messages_callback() {
+    public function check_for_new_messages_callback()
+    {
         // Check nonce for security validation
         check_ajax_referer('chatSecurityNonce', 'nonce');
 
@@ -1112,7 +1144,6 @@ class Javo_Chat_Public {
                 } else {
                     //error_log("No media ID found for message ID {$message['id']}");
                 }
-
             }
 
             // Send new messages back to the client
@@ -1132,7 +1163,8 @@ class Javo_Chat_Public {
      *
      * @since    1.0.0.10
      */
-    public function get_chat_messages_callback() {
+    public function get_chat_messages_callback()
+    {
         // Check if nonce is valid
         if (!wp_verify_nonce($_POST['nonce'], 'chatSecurityNonce')) {
             wp_send_json_error('Nonce verification failed');
@@ -1192,7 +1224,6 @@ class Javo_Chat_Public {
                 $message['user_name'] = $user_info->display_name;
                 $avatar_url = $this->get_user_avatar_url($message['sender_id']);
                 $message['avatar_url'] = $avatar_url ? $avatar_url : '';
-
             } else {
                 // Set default values if user information does not exist
                 $message['user_name'] = 'Unknown';
@@ -1229,7 +1260,7 @@ class Javo_Chat_Public {
             // Now $readStatus and $mediaId contain the respective values
             $message['read_status'] = $readStatus;
 
-           // Generate HTML content for the media, if a media ID is present
+            // Generate HTML content for the media, if a media ID is present
             if (!empty($mediaId)) {
                 //error_log("Generating HTML content for media ID: $mediaId");
                 try {
@@ -1260,7 +1291,8 @@ class Javo_Chat_Public {
      * @param int $mediaId The ID of the media.
      * @return string The HTML content for displaying the media.
      */
-    public function generateMediaContent($mediaId) {
+    public function generateMediaContent($mediaId)
+    {
         if (empty($mediaId)) {
             return '';
         }
@@ -1293,7 +1325,8 @@ class Javo_Chat_Public {
     }
 
     // This function handles Ajax requests to mark unread messages as read.
-    public function mark_unread_messages_as_read_callback() {
+    public function mark_unread_messages_as_read_callback()
+    {
         // Check nonce for security validation.
         check_ajax_referer('chatSecurityNonce', 'nonce');
 
@@ -1339,7 +1372,8 @@ class Javo_Chat_Public {
     }
 
     // Function to handle updating unread messages as read
-    function update_unread_messages_in_partner_chat_callback() {
+    function update_unread_messages_in_partner_chat_callback()
+    {
         // Check if the request is coming from a valid source
         check_ajax_referer('chatSecurityNonce', 'nonce');
 
@@ -1372,7 +1406,8 @@ class Javo_Chat_Public {
      * @param int|null $current_user_id The ID of the current user. If null, only the receiver's unread messages are counted.
      * @return int The number of unread messages for the receiver.
      */
-    private function get_unread_messages_count($receiver_id, $current_user_id = null) {
+    private function get_unread_messages_count($receiver_id, $current_user_id = null)
+    {
         global $wpdb;
         $meta_table_name = $wpdb->prefix . 'javo_core_conversations_meta';
 
@@ -1397,7 +1432,8 @@ class Javo_Chat_Public {
         return intval($unread_count);
     }
 
-    public function get_unread_count_callback() {
+    public function get_unread_count_callback()
+    {
         check_ajax_referer('chatSecurityNonce', 'nonce');
         // Get the count
         $unread_count = $this->get_unread_messages_count($_POST['receiverId'], get_current_user_id());
@@ -1412,7 +1448,8 @@ class Javo_Chat_Public {
      * @param int $receiver_id The ID of the message receiver.
      * @return string The last message.
      */
-    private function get_last_message($sender_id, $receiver_id) {
+    private function get_last_message($sender_id, $receiver_id)
+    {
         global $wpdb;
         $table_name = $wpdb->prefix . 'javo_core_conversations';
         $query = $wpdb->prepare(
@@ -1435,7 +1472,8 @@ class Javo_Chat_Public {
 
 
     // PHP function to handle typing status
-    public function handle_typing_status_callback() {
+    public function handle_typing_status_callback()
+    {
         // Check nonce for security validation
         check_ajax_referer('chatSecurityNonce', 'nonce');
 
@@ -1469,7 +1507,8 @@ class Javo_Chat_Public {
      *
      * @global wpdb $wpdb WordPress database abstraction object.
      */
-    public function get_search_results_callback() {
+    public function get_search_results_callback()
+    {
         global $wpdb;
         // Get the search query from the AJAX request, defaulting to an empty string if not set.
         $query = isset($_POST['query']) ? sanitize_text_field($_POST['query']) : '';
@@ -1490,7 +1529,8 @@ class Javo_Chat_Public {
                     IFNULL((SELECT meta_value FROM $wpdb->usermeta WHERE user_id = u.ID AND meta_key = 'avatar'), 'https://www.gravatar.com/avatar/90ece45ce4ca911eaa62e984909e0946?s=96&r=g&d=mm') AS avatar_url
             FROM $wpdb->users AS u
             WHERE u.display_name LIKE %s AND u.ID != %d", // Exclude the current user
-            '%' . $wpdb->esc_like($query) . '%', $current_user_id
+            '%' . $wpdb->esc_like($query) . '%',
+            $current_user_id
         );
 
         $user_results = $wpdb->get_results($user_query);
@@ -1527,7 +1567,11 @@ class Javo_Chat_Public {
             LEFT JOIN {$wpdb->prefix}users AS su ON c.sender_id = su.ID
             LEFT JOIN {$wpdb->prefix}users AS ru ON c.receiver_id = ru.ID
             WHERE (c.message LIKE %s AND (c.sender_id = %d OR c.receiver_id = %d))",
-            $current_user_id, $current_user_id, '%' . $wpdb->esc_like($query) . '%', $current_user_id, $current_user_id
+            $current_user_id,
+            $current_user_id,
+            '%' . $wpdb->esc_like($query) . '%',
+            $current_user_id,
+            $current_user_id
         );
 
         $message_results = $wpdb->get_results($message_query);
@@ -1542,7 +1586,8 @@ class Javo_Chat_Public {
         wp_send_json_success($combined_results);
     }
 
-    public function handle_last_activity_update() {
+    public function handle_last_activity_update()
+    {
         check_ajax_referer('chatSecurityNonce', 'nonce');
         $user_id = get_current_user_id();
         if ($user_id) {
@@ -1552,7 +1597,8 @@ class Javo_Chat_Public {
         wp_die(); // AJAX Done
     }
 
-    public function is_user_online($user_id) {
+    public function is_user_online($user_id)
+    {
 
         $last_activity = get_user_meta($user_id, 'jv_last_activity', true);
         $current_time = current_time('timestamp');
@@ -1562,7 +1608,8 @@ class Javo_Chat_Public {
 
     }
 
-    public function handle_toggle_favorite_users() {
+    public function handle_toggle_favorite_users()
+    {
         check_ajax_referer('chatSecurityNonce', 'nonce');
 
         $user_id = get_current_user_id();
@@ -1577,7 +1624,6 @@ class Javo_Chat_Public {
             $favorites = array_diff($favorites, [$receiver_id]);
             $is_favorite = false;
             $action_type = 'remove_favorite';
-
         } else {
             $favorites[] = $receiver_id;
             $is_favorite = true;
@@ -1587,7 +1633,7 @@ class Javo_Chat_Public {
         // Update user meta with new favorites
         update_user_meta($user_id, 'chat-favorite-users', implode(',', $favorites));
 
-         // Log action to history
+        // Log action to history
         $this->save_history($user_id, $action_type, $receiver_id);
 
         // Send JSON response
@@ -1596,7 +1642,8 @@ class Javo_Chat_Public {
         //save_chat_message
     }
 
-    public function handle_toggle_block_user() {
+    public function handle_toggle_block_user()
+    {
         check_ajax_referer('chatSecurityNonce', 'nonce');
 
         $user_id = get_current_user_id();
@@ -1626,7 +1673,8 @@ class Javo_Chat_Public {
         wp_send_json_success(['is_blocked' => $is_blocked]);
     }
 
-    public function handle_toggle_favorite_message_callback() {
+    public function handle_toggle_favorite_message_callback()
+    {
         check_ajax_referer('chatSecurityNonce', 'nonce');
 
         $user_id = get_current_user_id();
@@ -1661,7 +1709,7 @@ class Javo_Chat_Public {
         update_user_meta($user_id, 'chat-favorite-messages', implode(',', $favorite_messages));
 
         // Log action to history
-        $receiver_id=$message_id;
+        $receiver_id = $message_id;
         $this->save_history($user_id, $action_type, $receiver_id);
 
         // Send success response back to the client along with the alreadySaved flag
@@ -1671,7 +1719,8 @@ class Javo_Chat_Public {
     }
 
     // Callback function for handling AJAX requests.
-    public function load_favorite_messages_callback() {
+    public function load_favorite_messages_callback()
+    {
         // Verify the nonce for security validation.
         check_ajax_referer('chatSecurityNonce', 'nonce');
 
@@ -1736,7 +1785,8 @@ class Javo_Chat_Public {
         wp_die();
     }
 
-    public function save_chat_settings_callback() {
+    public function save_chat_settings_callback()
+    {
         // Check if user is logged in
         if (!is_user_logged_in()) {
             wp_send_json_error('User is not logged in.');
@@ -1793,7 +1843,8 @@ class Javo_Chat_Public {
      * @param int $user_id The ID of the user whose setting is to be retrieved.
      * @return string The value of the specified setting, or an empty string if not found/set.
      */
-    public function get_chat_setting($setting_name, $user_id = 0) {
+    public function get_chat_setting($setting_name, $user_id = 0)
+    {
         // If no user ID is provided, attempt to get the current user's ID.
         if ($user_id == 0) {
             $user_id = get_current_user_id();
@@ -1819,7 +1870,8 @@ class Javo_Chat_Public {
     /**
      * Handles AJAX requests for fetching the greeting message for a specific user.
      */
-    public function get_greeting_message_callback() {
+    public function get_greeting_message_callback()
+    {
         check_ajax_referer('chatSecurityNonce', 'nonce');
         // Extract the receiver ID from the POST data, defaulting to 0 if not provided.
         $user_id = isset($_POST['receiver_id']) ? intval($_POST['receiver_id']) : 0;
@@ -1841,7 +1893,8 @@ class Javo_Chat_Public {
     /**
      * Handles AJAX requests for fetching the chat owner notice for a specific user.
      */
-    public function get_chat_owner_notice_callback() {
+    public function get_chat_owner_notice_callback()
+    {
         check_ajax_referer('chatSecurityNonce', 'nonce');
         // Extract the receiver ID from the POST data, defaulting to 0 if not provided.
         $user_id = isset($_POST['receiver_id']) && $_POST['receiver_id'] !== '' ? intval($_POST['receiver_id']) : 0;
@@ -1863,7 +1916,8 @@ class Javo_Chat_Public {
         }
     }
 
-    public function get_user_chat_settings() {
+    public function get_user_chat_settings()
+    {
         // Check if user is logged in
         if (!is_user_logged_in()) {
             return false;
@@ -1892,7 +1946,8 @@ class Javo_Chat_Public {
     }
 
 
-    public function update_user_status_callback() {
+    public function update_user_status_callback()
+    {
         check_ajax_referer('chatSecurityNonce', 'nonce');
 
         $user_id = get_current_user_id();
@@ -1920,7 +1975,8 @@ class Javo_Chat_Public {
     }
 
     // Function to get user status and its class
-    public function get_chat_user_status() {
+    public function get_chat_user_status()
+    {
         // Get the user's status from user meta
         $user_status = get_user_meta(get_current_user_id(), 'jv_chat_user_status', true);
         // Set default values
@@ -1932,19 +1988,19 @@ class Javo_Chat_Public {
                 $class = 'chat-user-status-online'; // Online
                 $text = __('Online', 'text-domain'); // Online
                 break;
-                case 'busy':
-                    $class = 'chat-user-status-busy'; // Busy
-                    $text = __('Busy', 'text-domain'); // Busy
-                    break;
-                    case 'away':
-                        $class = 'chat-user-status-away'; // Away
-                        $text = __('Away', 'text-domain'); // Away
-                        break;
-                        default:
-                        // Default class and text remain unchanged
-                        break;
-                    }
-                    // Return an array containing class and text
+            case 'busy':
+                $class = 'chat-user-status-busy'; // Busy
+                $text = __('Busy', 'text-domain'); // Busy
+                break;
+            case 'away':
+                $class = 'chat-user-status-away'; // Away
+                $text = __('Away', 'text-domain'); // Away
+                break;
+            default:
+                // Default class and text remain unchanged
+                break;
+        }
+        // Return an array containing class and text
         return array(
             'class' => $class,
             'text' => $text
@@ -1955,7 +2011,8 @@ class Javo_Chat_Public {
      * Calculates the amount of messages to load to reach a specific message and its position.
      * Adds detailed error logging for troubleshooting.
      */
-    function calculate_load_msg_amount_callback() {
+    function calculate_load_msg_amount_callback()
+    {
         global $wpdb;
         check_ajax_referer('chatSecurityNonce', 'nonce');
 
@@ -1989,7 +2046,8 @@ class Javo_Chat_Public {
      * @param string $action_type Type of action performed.
      * @param int|null $target_id Optional ID of the target associated with the action.
      */
-    public function save_history($user_id, $action_type, $target_id = null) {
+    public function save_history($user_id, $action_type, $target_id = null)
+    {
         global $wpdb;
         $query = $wpdb->prepare("INSERT INTO wp_javo_history (user_id, action_type, target_id) VALUES (%d, %s, %d)", $user_id, $action_type, $target_id);
         $wpdb->query($query);
@@ -1998,7 +2056,8 @@ class Javo_Chat_Public {
     /**
      * Loads the action history for the current user.
      */
-    public function handle_load_action_history() {
+    public function handle_load_action_history()
+    {
         check_ajax_referer('chatSecurityNonce', 'nonce');
 
         global $wpdb;
@@ -2035,7 +2094,8 @@ class Javo_Chat_Public {
      * @param int $receiver_id ID of the receiver.
      * @param string $message Message content.
      */
-    public function check_send_email_callback($message_id, $sender_id, $receiver_id, $message) {
+    public function check_send_email_callback($message_id, $sender_id, $receiver_id, $message)
+    {
 
         // Fetch user chat settings
         $user_settings = $this->get_user_chat_settings($receiver_id); // Assuming this function exists and it fetches user-specific settings
@@ -2078,7 +2138,8 @@ class Javo_Chat_Public {
      * @param int $receiver_id ID of the email receiver.
      * @param string $title Title of the email sent.
      */
-    protected function log_email_transaction($receiver_id, $title) {
+    protected function log_email_transaction($receiver_id, $title)
+    {
         $email_log = get_user_meta($receiver_id, 'jv_chat_email_log', true);
         if (!empty($email_log)) {
             $email_log = json_decode($email_log, true);
@@ -2103,7 +2164,8 @@ class Javo_Chat_Public {
      * @param int $receiver_id ID of the receiver
      * @return bool True if it's the first message, false otherwise
      */
-    private function is_first_message($sender_id, $receiver_id) {
+    private function is_first_message($sender_id, $receiver_id)
+    {
         global $wpdb;
 
         // Define the table name
@@ -2112,7 +2174,10 @@ class Javo_Chat_Public {
         // Prepare the SQL query to check if there is any previous conversation between the sender and receiver
         $query = $wpdb->prepare(
             "SELECT COUNT(*) FROM $table_name WHERE (sender_id = %d AND receiver_id = %d) OR (sender_id = %d AND receiver_id = %d)",
-            $sender_id, $receiver_id, $receiver_id, $sender_id
+            $sender_id,
+            $receiver_id,
+            $receiver_id,
+            $sender_id
         );
 
         // Execute the query
@@ -2128,7 +2193,8 @@ class Javo_Chat_Public {
      * @param int $receiver_id ID of the receiver to check for new messages
      * @return bool Returns true if there are new messages for the offline user, false otherwise.
      */
-    private function is_offline_new_message($receiver_id) {
+    private function is_offline_new_message($receiver_id)
+    {
         global $wpdb;
         $table_name = $wpdb->prefix . 'javo_core_conversations';
 
@@ -2139,7 +2205,8 @@ class Javo_Chat_Public {
         // Prepare the query to find new messages after the last activity time
         $query = $wpdb->prepare(
             "SELECT COUNT(*) FROM $table_name WHERE receiver_id = %d AND submit_date > %s",
-            $receiver_id, date('Y-m-d H:i:s', $last_activity_time)
+            $receiver_id,
+            date('Y-m-d H:i:s', $last_activity_time)
         );
 
         // Execute the query and get the count of new messages
@@ -2154,7 +2221,8 @@ class Javo_Chat_Public {
      * This function ensures the 'check_and_send_email_for_unread_messages' action is scheduled to run every five minutes.
      * It's designed to allow more frequent checks and email notifications for unread messages.
      */
-    public function setup_custom_cron_schedule_for_emails() {
+    public function setup_custom_cron_schedule_for_emails()
+    {
         //error_log("setup_custom_cron_schedule_for_emails111!");
         if (!wp_next_scheduled('check_and_send_email_for_unread_messages')) {
             //error_log("Scheduling new event for check_and_send_email_for_unread_messages.");
@@ -2168,7 +2236,8 @@ class Javo_Chat_Public {
      * This function iterates over all users, checks if they have enabled email notifications for unread messages,
      * and if they have unread messages. If a user is offline and has unread messages, an email notification is sent.
      */
-    public function check_and_send_email_for_unread_messages() {
+    public function check_and_send_email_for_unread_messages()
+    {
         //error_log("check_and_send_email_for_unread_messages!");
         $users = get_users();
         foreach ($users as $user) {
@@ -2202,12 +2271,13 @@ class Javo_Chat_Public {
      * @param array $schedules The existing cron schedules.
      * @return array The modified list of cron schedules, including the new interval.
      */
-    function add_custom_cron_interval($schedules) {
+    function add_custom_cron_interval($schedules)
+    {
         // Get cron interval from the plugin settings, default to 1440 minutes (24 hours) if not set
         $interval_minutes = get_option('javo_chat_cron_interval', 1440); // Default is 24 hours
         //error_log('Cron Interval: ' . get_option('javo_chat_cron_interval', 1440));
         $interval = $interval_minutes * 60; // Convert minutes to seconds
-        
+
         $schedules['every_custom_minutes'] = array(
             'interval' => $interval, // Use the interval from the settings
             'display' => sprintf(__('Every %d Minutes'), $interval_minutes) // Display in minutes
@@ -2223,42 +2293,68 @@ class Javo_Chat_Public {
      * @param string $message     The message content
      * @param string $title       The title of the message
      */
-    public function send_chat_notification_email($sender_id, $receiver_id, $message, $title) {
+    public function send_chat_notification_email($sender_id, $receiver_id, $message, $title)
+    {
         // Get receiver email
         $receiver_email = get_userdata($receiver_id)->user_email;
 
         // Set email subject
         $subject = 'New Chat Message';
 
-        // Get selected skin from options
-        $selected_skin = get_option('javo_chat_selected_skin', 'professional');
+        // Get selected option (skin or template) and email template ID from options
+        $settings = get_option('javo_chat_admin_settings', array());
+        $selected_option = isset($settings['email_skin_or_template']) ? $settings['email_skin_or_template'] : 'skin';
+        $template_id = isset($settings['email_template_id']) ? $settings['email_template_id'] : 0;
 
-        // Load email template based on selected skin
-        $template_path = '';
-        if ($selected_skin === 'professional') {
-            $template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/professional_template.php';
-        } elseif ($selected_skin === 'modern') {
-            $template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/modern_template.php';
-        } elseif ($selected_skin === 'simple') {
-			$template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/simple_template.php';
-		}
+        // Log selected option and template ID for debugging
+        error_log('Selected Option: ' . $selected_option);
+        error_log('Selected Template ID: ' . $template_id);
 
-        // Check if template path is valid
-        if (!empty($template_path) && file_exists($template_path)) {
-            // Load template file
-            ob_start();
-            include $template_path;
-            $message_body = ob_get_clean();
+        // Load email template based on selected option
+        if ($selected_option === 'skin') {
+            // Handling skin option
+            $selected_skin = isset($settings['email_skin']) ? $settings['email_skin'] : 'professional';
 
-            // Replace placeholders in template with actual values
-            $message_body = str_replace('{{title}}', $title, $message_body);
-            $message_body = str_replace('{{content}}', $message, $message_body);
+            // Define template path based on selected skin
+            $template_path = '';
+            if ($selected_skin === 'professional') {
+                $template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/professional_template.php';
+            } elseif ($selected_skin === 'modern') {
+                $template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/modern_template.php';
+            } elseif ($selected_skin === 'simple') {
+                $template_path = plugin_dir_path(dirname(__FILE__)) . 'includes/email-templates/simple_template.php';
+            }
+
+            // Check if template path is valid
+            if (!empty($template_path) && file_exists($template_path)) {
+                // Load template file
+                ob_start();
+                include $template_path;
+                $message_body = ob_get_clean();
+
+                // Replace placeholders in template with actual values
+                $message_body = str_replace('{{title}}', $title, $message_body);
+                $message_body = str_replace('{{content}}', $message, $message_body);
+            } else {
+                // Default template if selected skin template not found
+                $message_body = "$title:\n\n";
+                $message_body .= "From: Admin <" . get_bloginfo('admin_email') . ">\n"; // Set sender as admin
+                $message_body .= "To: $receiver_email\n";
+                $message_body .= "Message: $message";
+            }
+        } elseif ($selected_option === 'template') {
+            // Handling template option
+            // Get email template content using shortcode
+            $message_body = '';
+            if (function_exists('do_shortcode')) {
+                $message_body = do_shortcode('[jve_template id=' . $template_id . ']');
+            } else {
+                error_log('do_shortcode does not work');
+            }
+            error_log('template_content: ' . $message_body);
         } else {
-            // Default template if selected skin template not found
-            $message_body = "$title:\n\n";
-            $message_body .= "From: Admin <" . get_bloginfo('admin_email') . ">\n"; // Set sender as admin
-            $message_body .= "To: $receiver_email\n";
-            $message_body .= "Message: $message";
+            // Invalid option selected
+            $message_body = 'Invalid option selected.';
         }
 
         // Set email headers
@@ -2266,11 +2362,6 @@ class Javo_Chat_Public {
             'Content-Type: text/html; charset=UTF-8',
             'Reply-To: ' . get_bloginfo('admin_email'), // Set reply-to as admin
         );
-
-        $action_type="Email-". $title;
-
-        // Log action to history
-        $this->save_history($sender_id, $action_type, $receiver_id);
 
         // Send email to receiver
         $sent = wp_mail($receiver_email, $subject, $message_body, $headers);
@@ -2284,6 +2375,4 @@ class Javo_Chat_Public {
             error_log("Failed to send chat notification email to $receiver_email.");
         }
     }
-
-
 }
