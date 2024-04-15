@@ -123,8 +123,7 @@ class Javo_Chat_Admin
 	public function display_plugin_admin_page()
 	{
 		// Get current settings
-		$javo_chat_admin_settings = get_option('javo_chat_admin_settings', array());
-?>
+		$javo_chat_admin_settings = get_option('javo_chat_admin_settings', array()); ?>
 		<div class="wrap">
 			<h1><?php echo esc_html(get_admin_page_title()); ?></h1>
 			<form method="post" action="options.php">
@@ -184,19 +183,29 @@ class Javo_Chat_Admin
 							<button id="preview_button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#previewModal"><?php esc_html_e('Preview', 'javo-chat'); ?></button>
 						</div>
 
-						<div id="template_options" class="hstack gap-3" style="<?php echo (isset($javo_chat_admin_settings['skin_or_template']) && $javo_chat_admin_settings['skin_or_template'] === 'template') ? 'display:block;' : 'display:none;'; ?>">
-							<!-- Email Template Dropdown -->
-							<label for="javo_chat_email_template"><?php esc_html_e('Select Email Template:', 'javo-chat'); ?></label>
-							<select id="javo_chat_email_template" name="javo_chat_admin_settings[email_template_id]">
-								<?php
-								// Retrieve email templates
-								$email_templates = jvbpdCore()->admin->getPageBuilderID('email_template');
-								foreach ($email_templates as $template_id) {
-									printf('<option value="%1$s" %2$s>%3$s</option>', $template_id, selected(isset($javo_chat_admin_settings['email_template_id']) && $javo_chat_admin_settings['email_template_id'] === $template_id), get_the_title($template_id));
-								}
-								?>
-							</select>
-						</div>
+						<?php
+						// Check if 'javo-core' plugin is active
+						if (is_plugin_active('javo-core/javo-core.php')) { ?>
+
+							<div id="template_options" class="hstack gap-3" style="<?php echo (isset($javo_chat_admin_settings['skin_or_template']) && $javo_chat_admin_settings['skin_or_template'] === 'template') ? 'display:block;' : 'display:none;'; ?>">
+								<!-- Email Template Dropdown -->
+								<label for="javo_chat_email_template"><?php esc_html_e('Select Email Template:', 'javo-chat'); ?></label>
+								<select id="javo_chat_email_template" name="javo_chat_admin_settings[email_template_id]">
+									<?php
+									// Retrieve email templates
+									$email_templates = jvbpdCore()->admin->getPageBuilderID('email_template');
+									foreach ($email_templates as $template_id) {
+										printf(
+											'<option value="%1$s" %2$s>%3$s</option>',
+											$template_id,
+											selected($javo_chat_admin_settings['email_template_id'] ?? '', $template_id, false),
+											get_the_title($template_id)
+										);
+									}
+									?>
+								</select>
+							</div>
+						<?php } ?>
 
 						<!-- Preview Modal -->
 						<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
@@ -228,8 +237,7 @@ class Javo_Chat_Admin
 				<?php submit_button(); ?>
 			</form>
 		</div>
-<?php
-	}
+<?php }
 
 
 
