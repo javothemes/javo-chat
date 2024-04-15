@@ -2303,8 +2303,8 @@ class Javo_Chat_Public
 
         // Get selected option (skin or template) and email template ID from options
         $settings = get_option('javo_chat_admin_settings', array());
-        $selected_option = isset($settings['email_skin_or_template']) ? $settings['email_skin_or_template'] : 'skin';
-        $template_id = isset($settings['email_template_id']) ? $settings['email_template_id'] : 0;
+        $selected_option = $settings['skin_or_template'] ?? 'skin';  // Correct key to 'skin_or_template'
+        $template_id = $settings['email_template_id'] ?? 0;
 
         // Log selected option and template ID for debugging
         error_log('Selected Option: ' . $selected_option);
@@ -2313,7 +2313,7 @@ class Javo_Chat_Public
         // Load email template based on selected option
         if ($selected_option === 'skin') {
             // Handling skin option
-            $selected_skin = isset($settings['email_skin']) ? $settings['email_skin'] : 'professional';
+            $selected_skin = $settings['email_skin'] ?? 'professional';
 
             // Define template path based on selected skin
             $template_path = '';
@@ -2349,7 +2349,7 @@ class Javo_Chat_Public
             if (function_exists('do_shortcode')) {
                 $message_body = do_shortcode('[jve_template id=' . $template_id . ']');
             } else {
-                error_log('do_shortcode does not work');
+                error_log('do_shortcode function is not available');
             }
             error_log('template_content: ' . $message_body);
         } else {
