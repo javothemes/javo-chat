@@ -97,4 +97,16 @@
 		}
 	});
 
+	document.addEventListener('DOMContentLoaded', function () {
+		var copyButtons = document.querySelectorAll('.copy-btn');
+		copyButtons.forEach(function (button) {
+			button.addEventListener('click', function (event) {
+				event.preventDefault();  // Prevent the default form submit behavior
+				navigator.clipboard.writeText(button.getAttribute('data-clipboard'))
+					.then(() => alert('Copied!'))
+					.catch(err => console.error('Error copying text: ', err));
+			});
+		});
+	});
+
 })(jQuery);

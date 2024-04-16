@@ -206,6 +206,38 @@ class Javo_Chat_Admin extends Javo_Chat_Base
 									?>
 								</select>
 							</div>
+
+							<div class="mt-4">
+								<div class="card">
+									<div class="card-body">
+										<h5 class="card-title"><?php echo esc_html__('ShortCodes for Email Template', 'jvchat'); ?></h5>
+										<div class="hstack gap-3 mt-2">
+											<p class="card-text m-0"><?php echo esc_html__('Home URL:', 'jvchat'); ?> [jvchat_home_url]</p>
+											<button class=" btn btn-sm btn-primary copy-btn" data-clipboard="[jvchat_home_url]"><?php echo esc_html__('Copy', 'jvchat'); ?></button>
+										</div>
+										<div class="hstack gap-3 mt-2">
+											<p class="card-text m-0"><?php echo esc_html__('Site Name:', 'jvchat'); ?> [jvchat_site_name]</p>
+											<button class="btn btn-sm btn-primary copy-btn" data-clipboard="[jvchat_site_name]"><?php echo esc_html__('Copy', 'jvchat'); ?></button>
+										</div>
+										<div class="hstack gap-3 mt-2">
+											<p class="card-text m-0"><?php echo esc_html__("The User's Username:", 'jvchat'); ?> [jvchat_user_name]</p>
+											<button class="btn btn-sm btn-primary copy-btn" data-clipboard="[jvchat_user_name]"><?php echo esc_html__('Copy', 'jvchat'); ?></button>
+										</div>
+										<div class="hstack gap-3 mt-2">
+											<p class="card-text m-0"><?php echo esc_html__("The User's Avatar:", 'jvchat'); ?> [jvchat_user_avatar width=75px rounded=true]</p>
+											<button class="btn btn-sm btn-primary copy-btn" data-clipboard='[jvchat_user_avatar width=75px rounded=true]'><?php echo esc_html__('Copy', 'jvchat'); ?></button>
+										</div>
+										<div class="hstack gap-3 mt-2">
+											<p class="card-text m-0"><?php echo esc_html__("The User's Dashboard URL:", 'jvchat'); ?> [jvchat_dashboard_url]</p>
+											<button class="btn btn-sm btn-primary copy-btn" data-clipboard="[jvchat_dashboard_url]"><?php echo esc_html__('Copy', 'jvchat'); ?></button>
+										</div>
+										<div class="hstack gap-3 mt-2">
+											<p class="card-text m-0"><?php echo esc_html__("The User's Unread Messages:", 'jvchat'); ?> [jvchat_unread_messages]</p>
+											<button class="btn btn-sm btn-primary copy-btn" data-clipboard="[jvchat_unread_messages]"><?php echo esc_html__('Copy', 'jvchat'); ?></button>
+										</div>
+									</div>
+								</div>
+							</div>
 						<?php } ?>
 
 						<!-- Preview Modal -->
@@ -348,44 +380,61 @@ class Javo_Chat_Admin extends Javo_Chat_Base
 	public function email_template_shortcodes()
 	{
 		// Site URI
-		add_shortcode('home_url', function () {
+		add_shortcode('jvchat_home_url', function () {
 			return home_url();
 		});
 
 		// Site Name
-		add_shortcode('site_name', function () {
+		add_shortcode('jvchat_site_name', function () {
 			return get_bloginfo('name');
 		});
 
 		// Author (display_name)
-		add_shortcode('chat_username', function ($atts) {
-			$receiver_id = $atts['receiver_id'] ?? get_current_user_id();
-			error_log("chat_username shortcode called. receiver_id expected: " . ($atts['receiver_id'] ?? 'Not provided') . ", actual: $receiver_id");
-			$author = get_userdata($receiver_id);
+		add_shortcode('jvchat_user_name', function ($atts) {
+			$user_id = $atts['user_id'] ?? get_current_user_id();
+			error_log("jvchat_user_name shortcode called. user_id expected: " . ($atts['user_id'] ?? 'Not provided') . ", actual: $user_id");
+			$author = get_userdata($user_id);
 			return $author ? $author->display_name : '';
 		});
 
 		// User Avatar
-		add_shortcode('user_avatar', function ($atts) {
-			$user_id = $atts['user_id'] ?? get_current_user_id();
-			error_log("user_avatar shortcode used for user ID: " . $user_id);
+		add_shortcode('jvchat_user_avatar', function ($atts) {
+			// Parse the attributes with default values
+			$atts = shortcode_atts(array(
+				'user_id' => get_current_user_id(), // Default user ID to current user
+				'width' => '80px', // Default width
+				'rounded' => false // Default rounded corners to false
+			), $atts);
+
+			$user_id = $atts['user_id'];
 			$avatar_url = get_avatar_url($user_id);
-			return '<img src="' . esc_url($avatar_url) . '" alt="User Avatar">';
+			$style = 'width: ' . esc_attr($atts['width']) . ';'; // Add width to style
+
+			// If rounded attribute is true, add border-radius to style
+			if ($atts['rounded'] === 'true') {
+				$style .= ' border-radius: 50%;'; // 50% makes the image fully rounded
+			}
+
+			// Log for debugging
+			error_log("jvchat_user_avatar shortcode used for user ID: " . $user_id . " with width: " . $atts['width'] . " and rounded: " . $atts['rounded']);
+
+			// Return the image element with styles applied
+			return '<img src="' . esc_url($avatar_url) . '" alt="User Avatar" style="' . $style . '">';
 		});
 
 		// User Dashboard URL
-		add_shortcode('dashboard_url', function ($atts) {
+		add_shortcode('jvchat_dashboard_url', function ($atts) {
 			$user_id = $atts['user_id'] ?? get_current_user_id();
-			error_log("dashboard_url shortcode used for user ID: " . $user_id);
+			error_log("jvchat_dashboard_url shortcode used for user ID: " . $user_id);
 			$user_info = get_userdata($user_id);
 			$username = $user_info ? $user_info->user_login : '';
 			return home_url('/member/' . $username . '/chat/');
 		});
 
 		// Unread Messages Amount
-		add_shortcode('unread_message_amount', function ($atts) {
+		add_shortcode('jvchat_unread_messages', function ($atts) {
 			$user_id = $atts['user_id'] ?? get_current_user_id();
-			error_log("unread_message_amount shortcode used for user ID: " . $user_id);
+			error_log("jvchat_unread_messages shortcode used for user ID: " . $user_id);
 			$unread_count = get_user_meta($user_id, 'jv_chat_unread_messages_count', true);
 			return $unread_count ? $unread_count : '0';  // Return '0' if no unread messages
 		});

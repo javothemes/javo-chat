@@ -2342,16 +2342,16 @@ class Javo_Chat_Public extends Javo_Chat_Base
 
         // Replace placeholder or add dynamic attributes for shortcodes using regex to ensure precise matching
         $patterns = [
-            '/\[chat_username\]/',  // Exact match for 'chat_username' without attributes
-            '/\[user_avatar\]/',
-            '/\[dashboard_url\]/',
-            '/\[unread_message_amount\]/'
+            '/\[jvchat_user_name\]/',  // Exact match for 'jvchat_user_name' without attributes
+            '/\[jvchat_user_avatar\]/',
+            '/\[jvchat_dashboard_url\]/',
+            '/\[jvchat_unread_messages\]/'
         ];
         $replacements = [
-            "[chat_username receiver_id='{$receiver_id}']",
-            "[user_avatar user_id='{$receiver_id}']",
-            "[dashboard_url user_id='{$receiver_id}']",
-            "[unread_message_amount user_id='{$receiver_id}']"
+            "[jvchat_user_name user_id='{$receiver_id}']",
+            "[jvchat_user_avatar user_id='{$receiver_id}']",
+            "[jvchat_dashboard_url user_id='{$receiver_id}']",
+            "[jvchat_unread_messages user_id='{$receiver_id}']"
         ];
         $content = preg_replace($patterns, $replacements, $content);
 
