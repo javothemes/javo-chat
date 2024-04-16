@@ -99,11 +99,16 @@
 
 	document.addEventListener('DOMContentLoaded', function () {
 		var copyButtons = document.querySelectorAll('.copy-btn');
+		var toastEl = document.getElementById('copyToast');
+		var toast = new bootstrap.Toast(toastEl); // Initialize the toast
+
 		copyButtons.forEach(function (button) {
 			button.addEventListener('click', function (event) {
-				event.preventDefault();  // Prevent the default form submit behavior
+				event.preventDefault();
 				navigator.clipboard.writeText(button.getAttribute('data-clipboard'))
-					.then(() => alert('Copied!'))
+					.then(() => {
+						toast.show(); // Show the toast on success
+					})
 					.catch(err => console.error('Error copying text: ', err));
 			});
 		});

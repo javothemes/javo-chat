@@ -210,34 +210,42 @@ class Javo_Chat_Admin extends Javo_Chat_Base
 							<div class="mt-4">
 								<div class="card">
 									<div class="card-body">
-										<h5 class="card-title"><?php echo esc_html__('ShortCodes for Email Template', 'jvchat'); ?></h5>
-										<div class="hstack gap-3 mt-2">
-											<p class="card-text m-0"><?php echo esc_html__('Home URL:', 'jvchat'); ?> [jvchat_home_url]</p>
-											<button class=" btn btn-sm btn-primary copy-btn" data-clipboard="[jvchat_home_url]"><?php echo esc_html__('Copy', 'jvchat'); ?></button>
-										</div>
-										<div class="hstack gap-3 mt-2">
-											<p class="card-text m-0"><?php echo esc_html__('Site Name:', 'jvchat'); ?> [jvchat_site_name]</p>
-											<button class="btn btn-sm btn-primary copy-btn" data-clipboard="[jvchat_site_name]"><?php echo esc_html__('Copy', 'jvchat'); ?></button>
-										</div>
-										<div class="hstack gap-3 mt-2">
-											<p class="card-text m-0"><?php echo esc_html__("The User's Username:", 'jvchat'); ?> [jvchat_user_name]</p>
-											<button class="btn btn-sm btn-primary copy-btn" data-clipboard="[jvchat_user_name]"><?php echo esc_html__('Copy', 'jvchat'); ?></button>
-										</div>
-										<div class="hstack gap-3 mt-2">
-											<p class="card-text m-0"><?php echo esc_html__("The User's Avatar:", 'jvchat'); ?> [jvchat_user_avatar width=75px rounded=true]</p>
-											<button class="btn btn-sm btn-primary copy-btn" data-clipboard='[jvchat_user_avatar width=75px rounded=true]'><?php echo esc_html__('Copy', 'jvchat'); ?></button>
-										</div>
-										<div class="hstack gap-3 mt-2">
-											<p class="card-text m-0"><?php echo esc_html__("The User's Dashboard URL:", 'jvchat'); ?> [jvchat_dashboard_url]</p>
-											<button class="btn btn-sm btn-primary copy-btn" data-clipboard="[jvchat_dashboard_url]"><?php echo esc_html__('Copy', 'jvchat'); ?></button>
-										</div>
-										<div class="hstack gap-3 mt-2">
-											<p class="card-text m-0"><?php echo esc_html__("The User's Unread Messages:", 'jvchat'); ?> [jvchat_unread_messages]</p>
-											<button class="btn btn-sm btn-primary copy-btn" data-clipboard="[jvchat_unread_messages]"><?php echo esc_html__('Copy', 'jvchat'); ?></button>
-										</div>
+										<h3 class="card-title mt-2"><?php echo esc_html__('ShortCodes for Email Template', 'jvchat'); ?></h5>
+											<?php $shortcodes = [
+												'Home URL' => '[jvchat_home_url]',
+												'Site Name' => '[jvchat_site_name]',
+												"The User's Username" => '[jvchat_user_name]',
+												"The User's Avatar" => '[jvchat_user_avatar width="75px" rounded="true"]',
+												"The User's Dashboard URL" => '[jvchat_dashboard_url]',
+												"The User's Unread Messages" => '[jvchat_unread_messages]'
+											]; ?>
+											<?php foreach ($shortcodes as $label => $shortcode) : ?>
+												<div class="hstack gap-3 mt-2">
+													<p class="card-text m-0"><?php echo esc_html__($label, 'jvchat'); ?>: <?php echo $shortcode; ?></p>
+													<button class="btn btn-sm btn-primary copy-btn" data-clipboard="<?php echo esc_attr($shortcode); ?>"><?php echo esc_html__('Copy', 'jvchat'); ?></button>
+												</div>
+											<?php endforeach; ?>
 									</div>
 								</div>
 							</div>
+
+							<!-- Toast container -->
+							<div aria-live="polite" aria-atomic="true" class="position-fixed top-5 end-0 p-3" style="z-index: 5">
+								<div class="toast" id="copyToast">
+									<div class="toast-header">
+										<strong class="me-auto"><?php echo esc_html__('Clipboard', 'jvchat'); ?></strong>
+										<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+									</div>
+									<div class="toast-body">
+										<?php echo esc_html__('Copied to clipboard!', 'jvchat'); ?>
+									</div>
+								</div>
+							</div>
+
+							<script>
+
+							</script>
+
 						<?php } ?>
 
 						<!-- Preview Modal -->
@@ -259,7 +267,7 @@ class Javo_Chat_Admin extends Javo_Chat_Base
 						</div>
 
 						<!-- Test Send Button -->
-						<div class="hstack gap-3">
+						<div class="hstack gap-3 mt-2">
 							<label for="test_email"><?php esc_html_e('Test Email Address:', 'javo-chat'); ?></label>
 							<input type="email" id="test_email" name="test_email" placeholder="<?php esc_html_e('Enter test email address', 'javo-chat'); ?>">
 							<button id="test_send_button" class="btn btn-primary"><?php esc_html_e('Test Send', 'javo-chat'); ?></button>
