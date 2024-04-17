@@ -188,7 +188,7 @@ class Javo_Chat_Admin extends Javo_Chat_Base
 						// Check if 'javo-core' plugin is active
 						if (is_plugin_active('javo-core/javo-core.php')) { ?>
 
-							<div id="template_options" class="hstack gap-3" style="<?php echo (isset($javo_chat_admin_settings['skin_or_template']) && $javo_chat_admin_settings['skin_or_template'] === 'template') ? 'display:block;' : 'display:none;'; ?>">
+							<div id="template_options" class="hstack gap-3 mt-2" style="<?php echo (isset($javo_chat_admin_settings['skin_or_template']) && $javo_chat_admin_settings['skin_or_template'] === 'template') ? 'display:block;' : 'display:none;'; ?>">
 								<!-- Email Template Dropdown -->
 								<label for="javo_chat_email_template"><?php esc_html_e('Select Email Template:', 'javo-chat'); ?></label>
 								<select id="javo_chat_email_template" name="javo_chat_admin_settings[email_template_id]">
@@ -389,7 +389,11 @@ class Javo_Chat_Admin extends Javo_Chat_Base
 	{
 		// Site URI
 		add_shortcode('jvchat_home_url', function () {
-			return home_url();
+			$home_url = home_url();
+			// Sanitize the URL to remove any erroneous 'http:' or 'https:' prefixes wrongly added
+			$fixed_url = preg_replace('#^https?:\/\/#', '', rtrim($home_url, '/'));
+			// Ensure the URL starts with the correct protocol
+			return $fixed_url;
 		});
 
 		// Site Name
@@ -400,7 +404,7 @@ class Javo_Chat_Admin extends Javo_Chat_Base
 		// Author (display_name)
 		add_shortcode('jvchat_user_name', function ($atts) {
 			$user_id = $atts['user_id'] ?? get_current_user_id();
-			error_log("jvchat_user_name shortcode called. user_id expected: " . ($atts['user_id'] ?? 'Not provided') . ", actual: $user_id");
+			// error_log("jvchat_user_name shortcode called. user_id expected: " . ($atts['user_id'] ?? 'Not provided') . ", actual: $user_id");
 			$author = get_userdata($user_id);
 			return $author ? $author->display_name : '';
 		});
@@ -424,7 +428,7 @@ class Javo_Chat_Admin extends Javo_Chat_Base
 			}
 
 			// Log for debugging
-			error_log("jvchat_user_avatar shortcode used for user ID: " . $user_id . " with width: " . $atts['width'] . " and rounded: " . $atts['rounded']);
+			// error_log("jvchat_user_avatar shortcode used for user ID: " . $user_id . " with width: " . $atts['width'] . " and rounded: " . $atts['rounded']);
 
 			// Return the image element with styles applied
 			return '<img src="' . esc_url($avatar_url) . '" alt="User Avatar" style="' . $style . '">';
@@ -433,7 +437,6 @@ class Javo_Chat_Admin extends Javo_Chat_Base
 		// User Dashboard URL
 		add_shortcode('jvchat_dashboard_url', function ($atts) {
 			$user_id = $atts['user_id'] ?? get_current_user_id();
-			error_log("jvchat_dashboard_url shortcode used for user ID: " . $user_id);
 			$user_info = get_userdata($user_id);
 			$username = $user_info ? $user_info->user_login : '';
 			return home_url('/member/' . $username . '/chat/');
@@ -442,7 +445,6 @@ class Javo_Chat_Admin extends Javo_Chat_Base
 		// Unread Messages Amount
 		add_shortcode('jvchat_unread_messages', function ($atts) {
 			$user_id = $atts['user_id'] ?? get_current_user_id();
-			error_log("jvchat_unread_messages shortcode used for user ID: " . $user_id);
 			$unread_count = get_user_meta($user_id, 'jv_chat_unread_messages_count', true);
 			return $unread_count ? $unread_count : '0';  // Return '0' if no unread messages
 		});
