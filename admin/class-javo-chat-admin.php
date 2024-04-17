@@ -391,9 +391,9 @@ class Javo_Chat_Admin extends Javo_Chat_Base
 		add_shortcode('jvchat_home_url', function () {
 			$home_url = home_url();
 			// Sanitize the URL to remove any erroneous 'http:' or 'https:' prefixes wrongly added
-			$fixed_url = preg_replace('#^https?:\/\/#', '', rtrim($home_url, '/'));
+			// $fixed_url = preg_replace('#^https?:\/\/#', '', rtrim($home_url, '/'));
 			// Ensure the URL starts with the correct protocol
-			return $fixed_url;
+			return $home_url;
 		});
 
 		// Site Name
