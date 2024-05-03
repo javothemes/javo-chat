@@ -16,7 +16,7 @@
  * Plugin Name:       Javo Chat
  * Plugin URI:        https://javothemes.com
  * Description:       Javo Chat!
- * Version:           1.0.0.16
+ * Version:           1.0.0.17
  * Author:            Javo
  * Author URI:        https://javothemes.com/
  * License:           GPL-2.0+
@@ -26,7 +26,7 @@
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
+if (!defined('WPINC')) {
 	die;
 }
 
@@ -35,14 +35,15 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'JAVO_CHAT_VERSION', '1.0.0.16' );
+define('JAVO_CHAT_VERSION', '1.0.0.16');
 
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-javo-chat-activator.php
  */
-function activate_javo_chat() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-javo-chat-activator.php';
+function activate_javo_chat()
+{
+	require_once plugin_dir_path(__FILE__) . 'includes/class-javo-chat-activator.php';
 	Javo_Chat_Activator::activate();
 }
 
@@ -50,19 +51,20 @@ function activate_javo_chat() {
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-javo-chat-deactivator.php
  */
-function deactivate_javo_chat() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-javo-chat-deactivator.php';
+function deactivate_javo_chat()
+{
+	require_once plugin_dir_path(__FILE__) . 'includes/class-javo-chat-deactivator.php';
 	Javo_Chat_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_javo_chat' );
-register_deactivation_hook( __FILE__, 'deactivate_javo_chat' );
+register_activation_hook(__FILE__, 'activate_javo_chat');
+register_deactivation_hook(__FILE__, 'deactivate_javo_chat');
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path( __FILE__ ) . 'includes/class-javo-chat.php';
+require plugin_dir_path(__FILE__) . 'includes/class-javo-chat.php';
 
 /**
  * Begins execution of the plugin.
@@ -73,10 +75,10 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-javo-chat.php';
  *
  * @since    1.0.0
  */
-function run_javo_chat() {
+function run_javo_chat()
+{
 
 	$plugin = new Javo_Chat();
 	$plugin->run();
-
 }
 run_javo_chat();

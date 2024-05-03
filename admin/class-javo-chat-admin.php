@@ -316,7 +316,11 @@ class Javo_Chat_Admin extends Javo_Chat_Base
 			}
 		} elseif ($selected_option === 'template') {
 			// Get email template content using shortcode
-			$message_body = do_shortcode("[jve_template id='$template_id']");
+			if (is_plugin_active('javo-core/javo-core.php')) {
+				$message_body = \jvbpdelement\Plugin::get_email_html_template(do_shortcode("[jve_template id='$template_id']"));
+			} else {
+				$message_body = "<body>" . do_shortcode("[jve_template id='$template_id']") . "</body>";
+			}
 		} else {
 			wp_send_json_error('Invalid option selected.');
 		}
